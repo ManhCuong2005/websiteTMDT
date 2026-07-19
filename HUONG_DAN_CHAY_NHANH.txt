@@ -1,0 +1,26 @@
+BANHANG - HƯỚNG DẪN CHẠY NHANH TRÊN WINDOWS 11
+================================================
+
+1. Giải nén thư mục vào đường dẫn không dấu, ví dụ:
+   D:\Projects\banhang-project
+
+2. Nhấp đúp check-environment.bat để kiểm tra Java, Node.js và PostgreSQL.
+
+3. Nhấp đúp setup-windows.bat, nhập mật khẩu PostgreSQL của tài khoản postgres.
+   Script sẽ tạo database banhang_db và file cấu hình local.
+
+4. Nhấp đúp run-all.bat.
+   Lần đầu cần Internet để tải thư viện Maven và npm.
+
+5. Mở trình duyệt:
+   http://localhost:5173
+
+Tài khoản quản trị:
+   Email: admin@banhang.vn
+   Mật khẩu: Admin@123
+
+Kiểm tra backend:
+   http://localhost:8080/api/health
+
+Google Login chưa tự chạy ngay vì cần Google Client ID của riêng bạn.
+Đọc README.md để cấu hình Google Login và xử lý lỗi thường gặp.

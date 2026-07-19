@@ -1,0 +1,13 @@
+config.local.bat
+backend/target/
+frontend/node_modules/
+frontend/dist/
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+*.iml
+*.log
+.DS_Store
+Thumbs.db

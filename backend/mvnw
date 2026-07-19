@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -e
+MAVEN_VERSION=3.9.11
+MAVEN_HOME="$HOME/.m2/banhang-wrapper/apache-maven-$MAVEN_VERSION"
+ZIP="/tmp/apache-maven-$MAVEN_VERSION-bin.zip"
+if [ ! -x "$MAVEN_HOME/bin/mvn" ]; then
+  mkdir -p "$HOME/.m2/banhang-wrapper"
+  URL="https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.zip"
+  if command -v curl >/dev/null 2>&1; then curl -fsSL "$URL" -o "$ZIP"; else wget -q "$URL" -O "$ZIP"; fi
+  unzip -q -o "$ZIP" -d "$HOME/.m2/banhang-wrapper"
+  rm -f "$ZIP"
+fi
+exec "$MAVEN_HOME/bin/mvn" "$@"
