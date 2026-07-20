@@ -4548,3 +4548,167 @@ td > small {
     border-radius: 10px;
   }
 }
+
+/* Mobile typography pass: align readable body text with iOS/Material mobile scales. */
+@media (max-width: 820px) {
+  html {
+    font-size: 16px;
+  }
+
+  body {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  p,
+  li,
+  label,
+  input,
+  select,
+  textarea,
+  .btn,
+  .main-nav a,
+  .filter-panel button,
+  .pagination button,
+  .table-toolbar button,
+  .row-actions button,
+  .admin-refresh {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .page-heading p,
+  .hero-copy > p,
+  .section-heading p,
+  .detail-short,
+  .category-card p,
+  .benefit-grid p,
+  .knowledge-banner p,
+  .footer-grid p,
+  .summary-note,
+  .review-content p,
+  .address-card p,
+  .order-detail-panel p,
+  .admin-panel p {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .page-heading h1,
+  .hero-copy h1,
+  .detail-info h1 {
+    font-size: clamp(32px, 9vw, 40px);
+    line-height: 1.12;
+  }
+
+  .section-heading h2,
+  .admin-heading h1 {
+    font-size: clamp(27px, 7vw, 34px);
+    line-height: 1.18;
+  }
+
+  h2,
+  .panel h2,
+  .auth-card h1,
+  .order-summary h2,
+  .account-panel h2,
+  .orders-sidebar h2,
+  .order-detail-panel h2,
+  .admin-panel h2 {
+    font-size: clamp(22px, 5.6vw, 28px);
+    line-height: 1.22;
+  }
+
+  h3,
+  .product-title,
+  .category-card h3,
+  .benefit-grid h3,
+  .coupon-grid h3,
+  .admin-order-items h3 {
+    font-size: 17px;
+    line-height: 1.4;
+  }
+
+  small,
+  .eyebrow,
+  .hero-kicker,
+  .brand small,
+  .brand-text small,
+  .cart-product small,
+  .product-meta,
+  .product-chip,
+  .status,
+  th,
+  td,
+  .coupon-grid p,
+  .coupon-grid small,
+  .admin-order-detail-head p,
+  .admin-order-info span,
+  .admin-order-info small,
+  .admin-order-items small,
+  .admin-order-flow button {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .product-price,
+  .price-row strong,
+  .summary-total b,
+  .line-total,
+  .stat-grid b {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+
+  .product-card-body,
+  .category-card,
+  .benefit-grid > div,
+  .panel,
+  .auth-card,
+  .order-summary,
+  .account-panel,
+  .orders-sidebar,
+  .order-detail-panel,
+  .admin-panel {
+    font-size: 15px;
+  }
+
+  .btn,
+  .filter-panel button,
+  .quantity-control,
+  input,
+  select,
+  textarea {
+    min-height: 46px;
+  }
+}
+
+@media (max-width: 560px) {
+  .brand b,
+  .brand-text b {
+    font-size: 13px;
+  }
+
+  .brand small,
+  .brand-text small {
+    font-size: 9px;
+  }
+
+  .page-heading h1,
+  .hero-copy h1,
+  .detail-info h1 {
+    font-size: clamp(30px, 9.4vw, 38px);
+  }
+
+  .hero-copy > p,
+  .page-heading p,
+  .section-heading p,
+  .detail-short {
+    font-size: 16px;
+  }
+
+  .product-title,
+  .cart-product a {
+    font-size: 16px;
+  }
+}
