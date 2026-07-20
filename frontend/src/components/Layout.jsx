@@ -83,6 +83,34 @@ export default function Layout() {
                 Đơn hàng
               </NavLink>
             )}
+
+            <div className="mobile-nav-account">
+              {user ? (
+                <>
+                  <NavLink
+                    to={user.role === "ADMIN" ? "/admin" : "/tai-khoan"}
+                    onClick={() => setOpen(false)}
+                  >
+                    <Icon name="user" size={18} />
+                    <span>Thông tin cá nhân</span>
+                  </NavLink>
+
+                  <button
+                    type="button"
+                    className="mobile-nav-logout"
+                    onClick={handleLogout}
+                  >
+                    <Icon name="logout" size={18} />
+                    <span>Đăng xuất</span>
+                  </button>
+                </>
+              ) : (
+                <NavLink to="/dang-nhap" onClick={() => setOpen(false)}>
+                  <Icon name="user" size={18} />
+                  <span>Đăng nhập</span>
+                </NavLink>
+              )}
+            </div>
           </nav>
 
           <div className="header-actions">

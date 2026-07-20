@@ -1050,6 +1050,10 @@ img {
   background: transparent;
 }
 
+.mobile-nav-account {
+  display: none;
+}
+
 .hero-section {
   background: linear-gradient(115deg, #e9f8f4 0%, #f8fbf7 55%, #e5f5f1 100%);
   overflow: hidden;
@@ -4191,6 +4195,47 @@ td > small {
     gap: 8px;
   }
 
+  .header-user-actions .account-menu,
+  .header-user-actions .login-link {
+    display: none;
+  }
+
+  .mobile-nav-account {
+    display: grid;
+    gap: 4px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid #e1eceb;
+  }
+
+  .mobile-nav-account a,
+  .mobile-nav-logout {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 44px;
+    width: 100%;
+    padding: 12px 14px;
+    gap: 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #294c50;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .mobile-nav-account a.active,
+  .mobile-nav-account a:hover,
+  .mobile-nav-logout:hover {
+    background: #eef8f7;
+    color: var(--teal-dark);
+  }
+
+  .mobile-nav-logout {
+    color: #9c3d3d;
+  }
+
   .account-text,
   .login-link > span:last-child,
   .logout-button span,
@@ -4710,5 +4755,118 @@ td > small {
   .product-title,
   .cart-product a {
     font-size: 16px;
+  }
+}
+
+/* Mobile font floor: cover every visible text surface, including spans/badges/tables/admin. */
+@media (max-width: 820px) {
+  :where(
+      body,
+      div,
+      span,
+      p,
+      a,
+      b,
+      strong,
+      em,
+      label,
+      input,
+      select,
+      textarea,
+      button,
+      li,
+      td,
+      th,
+      summary
+    ) {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  :where(p, li, label, input, select, textarea, .detail-short, .summary-note) {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  :where(button, .btn, .main-nav a, .filter-panel button, .row-actions button, .pagination button) {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  :where(small, .eyebrow, .hero-kicker, .status, .product-chip, .product-meta, .cart-count) {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  :where(.brand small, .brand-text small) {
+    font-size: 11px;
+  }
+
+  :where(.account-text small, .cart-count) {
+    font-size: 12px;
+  }
+
+  :where(h1, .page-heading h1, .hero-copy h1, .detail-info h1) {
+    font-size: clamp(32px, 9vw, 40px);
+    line-height: 1.12;
+  }
+
+  :where(h2, .section-heading h2, .admin-heading h1, .panel h2, .order-summary h2) {
+    font-size: clamp(24px, 6.8vw, 34px);
+    line-height: 1.2;
+  }
+
+  :where(h3, .product-title, .category-card h3, .benefit-grid h3, .admin-order-items h3) {
+    font-size: 18px;
+    line-height: 1.35;
+  }
+
+  :where(.product-price, .price-row strong, .summary-total b, .line-total, .stat-grid b) {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+}
+
+@media (max-width: 560px) {
+  :where(
+      body,
+      div,
+      span,
+      p,
+      a,
+      b,
+      strong,
+      em,
+      label,
+      input,
+      select,
+      textarea,
+      button,
+      li,
+      td,
+      th,
+      summary
+    ) {
+    font-size: 15px;
+  }
+
+  :where(p, li, label, input, select, textarea, .detail-short, .summary-note) {
+    font-size: 16px;
+  }
+
+  :where(small, .eyebrow, .hero-kicker, .status, .product-chip, .product-meta) {
+    font-size: 13px;
+  }
+
+  :where(.brand b, .brand-text b) {
+    font-size: 14px;
+  }
+
+  :where(.brand small, .brand-text small) {
+    font-size: 11px;
+  }
+
+  :where(h1, .page-heading h1, .hero-copy h1, .detail-info h1) {
+    font-size: clamp(31px, 9.5vw, 38px);
   }
 }
