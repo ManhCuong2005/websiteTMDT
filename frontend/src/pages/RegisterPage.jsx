@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { errorMessage } from '../services/api'
+import { Icon } from '../components/Icons'
 
 export default function RegisterPage() {
   const { user, register, verifyRegistration } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', confirm: '' })
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [code, setCode] = useState('')
   const [pendingEmail, setPendingEmail] = useState('')
   const [notice, setNotice] = useState('')
@@ -80,10 +83,32 @@ export default function RegisterPage() {
             </div>
             <div className="form-grid two">
               <label>Mat khau
-                <input type="password" minLength="6" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+                <span className="password-field">
+                  <input type={showPassword ? 'text' : 'password'} minLength="6" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword((current) => !current)}
+                    aria-label={showPassword ? 'An mat khau' : 'Hien mat khau'}
+                    title={showPassword ? 'An mat khau' : 'Hien mat khau'}
+                  >
+                    <Icon name={showPassword ? 'eyeOff' : 'eye'} size={18} />
+                  </button>
+                </span>
               </label>
               <label>Xac nhan mat khau
-                <input type="password" minLength="6" required value={form.confirm} onChange={e => setForm({ ...form, confirm: e.target.value })} />
+                <span className="password-field">
+                  <input type={showConfirm ? 'text' : 'password'} minLength="6" required value={form.confirm} onChange={e => setForm({ ...form, confirm: e.target.value })} />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowConfirm((current) => !current)}
+                    aria-label={showConfirm ? 'An mat khau xac nhan' : 'Hien mat khau xac nhan'}
+                    title={showConfirm ? 'An mat khau xac nhan' : 'Hien mat khau xac nhan'}
+                  >
+                    <Icon name={showConfirm ? 'eyeOff' : 'eye'} size={18} />
+                  </button>
+                </span>
               </label>
             </div>
             <button className="btn btn-primary full" disabled={busy}>

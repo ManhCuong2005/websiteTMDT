@@ -3,12 +3,14 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { errorMessage } from '../services/api'
 import GoogleButton from '../components/GoogleButton'
+import { Icon } from '../components/Icons'
 
 export default function LoginPage() {
   const { user, login, googleLogin } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [form, setForm] = useState({ email: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
 
   const destination = location.state?.from || '/'
@@ -72,13 +74,24 @@ export default function LoginPage() {
           </label>
           <label>
             Mật khẩu
-            <input
-              type="password"
-              required
-              value={form.password}
-              onChange={(event) => setForm({ ...form, password: event.target.value })}
-              placeholder="••••••••"
-            />
+            <span className="password-field">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={form.password}
+                onChange={(event) => setForm({ ...form, password: event.target.value })}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              >
+                <Icon name={showPassword ? 'eyeOff' : 'eye'} size={18} />
+              </button>
+            </span>
           </label>
           <button type="submit" className="btn btn-primary full" disabled={busy}>
             {busy ? 'Đang đăng nhập...' : 'Đăng nhập'}
