@@ -30,7 +30,12 @@ api.interceptors.response.use(
 export const errorMessage = (error) => {
   const details = error.response?.data?.details;
   if (details && typeof details === "object") return Object.values(details)[0];
-  return error.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại.";
+  if (typeof error.response?.data === "string" && error.response.data.trim()) {
+    return `Máy chủ trả về lỗi ${error.response.status}. Vui lòng kiểm tra backend đã restart đúng phiên bản mới.`;
+  }
+  if (error.response?.data?.message) return error.response.data.message;
+  if (error.response?.status) return `Có lỗi xảy ra từ máy chủ (HTTP ${error.response.status}).`;
+  return "Không kết nối được backend. Vui lòng kiểm tra backend đang chạy.";
 };
 
 export default api;

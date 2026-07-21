@@ -23,6 +23,7 @@ public final class AdminDtos {
             long shippingOrders,
             long deliveredOrders,
             long lowStockProducts,
+            long newServiceRequests,
             BigDecimal deliveredRevenue
     ) {
     }
@@ -80,5 +81,8 @@ public final class AdminDtos {
     }
 
     public record UpdateUserStatusRequest(boolean enabled) {
+    }
+
+    public record UpdateUserRoleRequest(UserRole role) {
     }
 }

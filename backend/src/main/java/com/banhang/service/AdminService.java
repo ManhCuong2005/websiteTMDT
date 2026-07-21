@@ -8,6 +8,7 @@ import com.banhang.domain.Product;
 import com.banhang.domain.User;
 import com.banhang.domain.enums.OrderStatus;
 import com.banhang.domain.enums.PaymentStatus;
+import com.banhang.domain.enums.ServiceRequestStatus;
 import com.banhang.domain.enums.UserRole;
 import com.banhang.dto.AdminDtos;
 import com.banhang.dto.CommonDtos;
@@ -19,6 +20,7 @@ import com.banhang.repository.CouponRepository;
 import com.banhang.repository.OrderRepository;
 import com.banhang.repository.PaymentRepository;
 import com.banhang.repository.ProductRepository;
+import com.banhang.repository.ServiceRequestRepository;
 import com.banhang.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +42,7 @@ public class AdminService {
     private final CouponRepository couponRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final ServiceRequestRepository serviceRequestRepository;
     private final MappingService mappingService;
     private final CurrentUserService currentUserService;
     private final EmailService emailService;
@@ -50,6 +53,7 @@ public class AdminService {
                         CouponRepository couponRepository,
                         OrderRepository orderRepository,
                         PaymentRepository paymentRepository,
+                        ServiceRequestRepository serviceRequestRepository,
                         MappingService mappingService,
                         CurrentUserService currentUserService,
                         EmailService emailService) {
@@ -59,6 +63,7 @@ public class AdminService {
         this.couponRepository = couponRepository;
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
+        this.serviceRequestRepository = serviceRequestRepository;
         this.mappingService = mappingService;
         this.currentUserService = currentUserService;
         this.emailService = emailService;
@@ -74,6 +79,7 @@ public class AdminService {
                 orderRepository.countByStatus(OrderStatus.SHIPPING),
                 orderRepository.countByStatus(OrderStatus.DELIVERED),
                 productRepository.countByActiveTrueAndStockQuantityLessThanEqual(5),
+                serviceRequestRepository.countByStatus(ServiceRequestStatus.NEW),
                 orderRepository.sumDeliveredRevenue());
     }
 
@@ -238,6 +244,21 @@ public class AdminService {
             throw new AppException(HttpStatus.BAD_REQUEST, "Bạn không thể tự khóa tài khoản của mình");
         }
         user.setEnabled(request.enabled());
+        return mappingService.toAdminUser(userRepository.save(user));
+    }
+
+    @Transactional
+    public AdminDtos.AdminUserResponse updateUserRole(Long id, AdminDtos.UpdateUserRoleRequest request) {
+        if (request.role() == null) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Vai tro khong hop le");
+        }
+        User current = currentUserService.requireUser();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Khong tim thay nguoi dung"));
+        if (user.getId().equals(current.getId()) && request.role() != UserRole.ADMIN) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Ban khong the tu ha vai tro admin cua minh");
+        }
+        user.setRole(request.role());
         return mappingService.toAdminUser(userRepository.save(user));
     }
 

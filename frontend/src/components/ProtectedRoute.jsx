@@ -12,3 +12,9 @@ export function AdminRoute({ children }) {
   if (!user) return <Navigate to="/dang-nhap" replace />
   return user.role === 'ADMIN' ? children : <Navigate to="/" replace />
 }
+
+export function StaffRoute({ children }) {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/dang-nhap" replace />
+  return user.role === 'STAFF' || user.role === 'ADMIN' ? children : <Navigate to="/" replace />
+}

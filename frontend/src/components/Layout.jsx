@@ -1,20 +1,26 @@
 import { useState } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { Icon } from "./Icons";
 
 export default function Layout() {
   const { user, logout } = useAuth();
   const { cart } = useCart();
+  const { isDark, toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const closeMenu = () => setOpen(false);
+  const isProductsActive = location.pathname === "/san-pham";
+  const accountPath = user?.role === "ADMIN" ? "/admin" : user?.role === "STAFF" ? "/staff" : "/tai-khoan";
 
   const handleLogout = () => {
     const confirmed = window.confirm("Bạn có chắc chắn muốn đăng xuất không?");
     if (!confirmed) return;
-
     logout();
     setOpen(false);
   };
@@ -25,87 +31,44 @@ export default function Layout() {
     navigate(keyword ? `/san-pham?search=${encodeURIComponent(keyword)}` : "/san-pham");
     setOpen(false);
   };
+
   return (
     <div className="site-shell">
-      {/* <div className="announcement">Miễn phí giao hàng cho đơn từ 500.000đ · Tư vấn nguồn nước tận tâm</div> */}
       <header className="site-header">
         <div className="header-inner header-container">
-          <Link className="brand" to="/">
-            <span className="brand-drop">◆</span>
-
+          <Link className="brand" to="/" onClick={closeMenu}>
+            <span className="brand-drop">MP</span>
             <span className="brand-text">
               <b>CTCP Xử Lý Nước</b>
               <small>MINH PHÁT</small>
             </span>
           </Link>
 
-          <button
-            type="button"
-            className="mobile-menu"
-            onClick={() => setOpen(!open)}
-            aria-label={open ? "Đóng menu" : "Mở menu"}
-          >
+          <button type="button" className="mobile-menu" onClick={() => setOpen(!open)} aria-label={open ? "Đóng menu" : "Mở menu"}>
             <Icon name={open ? "close" : "menu"} />
           </button>
 
           <nav className={open ? "main-nav open" : "main-nav"}>
-            <NavLink to="/" onClick={() => setOpen(false)}>
-              Trang chủ
-            </NavLink>
-
-            <NavLink to="/san-pham" onClick={() => setOpen(false)}>
-              Sản phẩm
-            </NavLink>
-
-            <NavLink
-              to="/san-pham?category=but-thu-nuoc"
-              onClick={() => setOpen(false)}
-            >
-              Bút thử nước
-            </NavLink>
-
-            <NavLink
-              to="/san-pham?category=loi-loc-nuoc"
-              onClick={() => setOpen(false)}
-            >
-              Lõi lọc
-            </NavLink>
-
-            <NavLink
-              to="/san-pham?category=may-loc-nuoc"
-              onClick={() => setOpen(false)}
-            >
-              Máy lọc
-            </NavLink>
-
-            {user && (
-              <NavLink to="/don-hang" onClick={() => setOpen(false)}>
-                Đơn hàng
-              </NavLink>
-            )}
+            <NavLink to="/" end onClick={closeMenu}>Trang chủ</NavLink>
+            <Link className={isProductsActive ? "active" : ""} to="/san-pham" onClick={closeMenu}>Sản phẩm</Link>
+            <NavLink to="/dat-lich" onClick={closeMenu}>Đặt lịch</NavLink>
+            {user?.role === "STAFF" && <NavLink to="/staff" onClick={closeMenu}>Công việc</NavLink>}
+            {user && user.role !== "STAFF" && <NavLink to="/don-hang" onClick={closeMenu}>Đơn hàng</NavLink>}
 
             <div className="mobile-nav-account">
               {user ? (
                 <>
-                  <NavLink
-                    to={user.role === "ADMIN" ? "/admin" : "/tai-khoan"}
-                    onClick={() => setOpen(false)}
-                  >
+                  <NavLink to={accountPath} onClick={closeMenu}>
                     <Icon name="user" size={18} />
-                    <span>Thông tin cá nhân</span>
+                    <span>{user.role === "STAFF" ? "Công việc của tôi" : "Thông tin cá nhân"}</span>
                   </NavLink>
-
-                  <button
-                    type="button"
-                    className="mobile-nav-logout"
-                    onClick={handleLogout}
-                  >
+                  <button type="button" className="mobile-nav-logout" onClick={handleLogout}>
                     <Icon name="logout" size={18} />
                     <span>Đăng xuất</span>
                   </button>
                 </>
               ) : (
-                <NavLink to="/dang-nhap" onClick={() => setOpen(false)}>
+                <NavLink to="/dang-nhap" onClick={closeMenu}>
                   <Icon name="user" size={18} />
                   <span>Đăng nhập</span>
                 </NavLink>
@@ -116,99 +79,70 @@ export default function Layout() {
           <div className="header-actions">
             <form className="header-search" onSubmit={submitSearch}>
               <Icon name="search" />
-
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Tìm sản phẩm..."
-                aria-label="Tìm kiếm sản phẩm"
-              />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm sản phẩm..." aria-label="Tìm kiếm sản phẩm" />
             </form>
 
             <div className="header-user-actions">
               {user ? (
                 <div className="account-menu">
-                  <Link
-                    className="account-link"
-                    to={user.role === "ADMIN" ? "/admin" : "/tai-khoan"}
-                    title="Thông tin tài khoản"
-                  >
-                    <span className="header-action-icon">
-                      <Icon name="user" />
-                    </span>
-
+                  <Link className="account-link" to={accountPath} title="Thông tin tài khoản">
+                    <span className="header-action-icon"><Icon name="user" /></span>
                     <span className="account-text">
-                      <small>Tài khoản</small>
-                      <strong>
-                        {user.fullName?.split(" ").at(-1) || "Người dùng"}
-                      </strong>
+                      <small>{user.role === "STAFF" ? "Nhân viên" : "Tài khoản"}</small>
+                      <strong>{user.fullName?.split(" ").at(-1) || "Người dùng"}</strong>
                     </span>
                   </Link>
 
-                  <button
-                    type="button"
-                    className="logout-button"
-                    onClick={handleLogout}
-                    title="Đăng xuất"
-                    aria-label="Đăng xuất"
-                  >
+                  <button type="button" className="logout-button" onClick={handleLogout} title="Đăng xuất" aria-label="Đăng xuất">
                     <Icon name="logout" size={18} />
                     <span>Đăng xuất</span>
                   </button>
                 </div>
               ) : (
                 <Link className="login-link" to="/dang-nhap">
-                  <span className="header-action-icon">
-                    <Icon name="user" />
-                  </span>
-
+                  <span className="header-action-icon"><Icon name="user" /></span>
                   <span>Đăng nhập</span>
                 </Link>
               )}
 
-              <Link className="cart-link" to="/gio-hang" title="Giỏ hàng">
-                <span className="cart-icon-wrapper">
-                  <Icon name="cart" />
+              <button type="button" className="theme-toggle" onClick={toggleTheme} title={isDark ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"} aria-label={isDark ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}>
+                <Icon name={isDark ? "sun" : "moon"} size={18} />
+              </button>
 
-                  <span className="cart-count">{cart.totalItems || 0}</span>
-                </span>
-
-                <span className="cart-text">Giỏ hàng</span>
-              </Link>
+              {user?.role !== "STAFF" && (
+                <Link className="cart-link" to="/gio-hang" title="Giỏ hàng">
+                  <span className="cart-icon-wrapper">
+                    <Icon name="cart" />
+                    <span className="cart-count">{cart.totalItems || 0}</span>
+                  </span>
+                  <span className="cart-text">Giỏ hàng</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>
       </header>
-      <main>
-        <Outlet />
-      </main>
+
+      <main><Outlet /></main>
+
       <footer className="site-footer">
         <div className="container footer-grid">
           <div>
             <Link className="brand footer-brand" to="/">
-              <span className="brand-drop">◆</span>
+              <span className="brand-drop">MP</span>
               <span>
-                <b
-                  style={{
-                    fontWeight: "bold",
-                    fontStyle: "italic",
-                  }}
-                >
-                  CTCP Xử Lý Nước
-                </b>
+                <b style={{ fontWeight: "bold", fontStyle: "italic" }}>CTCP Xử Lý Nước</b>
                 <small>MINH PHÁT</small>
               </span>
             </Link>
-            <p>
-              Giải pháp kiểm tra và lắp đặt máy lọc nước đáng tin cậy cho mọi
-              gia đình Việt.
-            </p>
+            <p>Giải pháp kiểm tra, lắp đặt và bảo trì máy lọc nước đáng tin cậy cho mọi gia đình Việt.</p>
           </div>
           <div>
             <h4>Danh mục</h4>
             <Link to="/san-pham?category=but-thu-nuoc">Bút thử nước</Link>
             <Link to="/san-pham?category=loi-loc-nuoc">Lõi lọc nước</Link>
             <Link to="/san-pham?category=may-loc-nuoc">Máy lọc nước</Link>
+            <Link to="/dat-lich">Đặt lịch dịch vụ</Link>
           </div>
           <div>
             <h4>Hỗ trợ</h4>
@@ -225,6 +159,17 @@ export default function Layout() {
         </div>
         <div className="footer-bottom">© 2026 CTCP Xử Lý Nước Minh Phát.</div>
       </footer>
+
+      <a
+        className="floating-zalo"
+        href="https://zalo.me/0977148627"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat Zalo với Minh Phát"
+        title="Chat Zalo"
+      >
+        <span>Zalo</span>
+      </a>
     </div>
   );
 }

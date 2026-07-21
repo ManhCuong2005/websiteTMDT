@@ -1,11 +1,14 @@
 package com.banhang.controller;
 
 import com.banhang.domain.enums.OrderStatus;
+import com.banhang.domain.enums.ServiceRequestStatus;
 import com.banhang.dto.AdminDtos;
 import com.banhang.dto.CommonDtos;
 import com.banhang.dto.OrderDtos;
 import com.banhang.dto.ProductDtos;
+import com.banhang.dto.ServiceRequestDtos;
 import com.banhang.service.AdminService;
+import com.banhang.service.ServiceRequestService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +27,12 @@ import java.util.List;
 @RequestMapping("/api/admin")
 public class AdminController {
     private final AdminService adminService;
+    private final ServiceRequestService serviceRequestService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService,
+                           ServiceRequestService serviceRequestService) {
         this.adminService = adminService;
+        this.serviceRequestService = serviceRequestService;
     }
 
     @GetMapping("/dashboard")
@@ -130,5 +136,39 @@ public class AdminController {
     public AdminDtos.AdminUserResponse updateUserStatus(@PathVariable Long id,
                                                          @RequestBody AdminDtos.UpdateUserStatusRequest request) {
         return adminService.updateUserStatus(id, request);
+    }
+
+    @PatchMapping("/users/{id}/role")
+    public AdminDtos.AdminUserResponse updateUserRole(@PathVariable Long id,
+                                                       @RequestBody AdminDtos.UpdateUserRoleRequest request) {
+        return adminService.updateUserRole(id, request);
+    }
+
+    @GetMapping("/service-requests")
+    public CommonDtos.PageResponse<ServiceRequestDtos.ServiceRequestResponse> serviceRequests(
+            @RequestParam(required = false) ServiceRequestStatus status,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return serviceRequestService.adminSearch(status, search, page, size);
+    }
+
+    @GetMapping("/staff")
+    public List<ServiceRequestDtos.StaffOptionResponse> staffOptions() {
+        return serviceRequestService.staffOptions();
+    }
+
+    @PatchMapping("/service-requests/{id}/status")
+    public ServiceRequestDtos.ServiceRequestResponse updateServiceRequestStatus(
+            @PathVariable Long id,
+            @RequestBody ServiceRequestDtos.UpdateServiceRequestStatusRequest request) {
+        return serviceRequestService.updateStatus(id, request);
+    }
+
+    @PatchMapping("/service-requests/{id}/assign")
+    public ServiceRequestDtos.ServiceRequestResponse assignServiceRequest(
+            @PathVariable Long id,
+            @RequestBody ServiceRequestDtos.AssignStaffRequest request) {
+        return serviceRequestService.assignStaff(id, request);
     }
 }

@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import api, { errorMessage } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { dateTime, money, statusLabel } from "../services/format";
 
 export default function AccountPage() {
   const { user, setUser } = useAuth();
+  const { language, setLanguage } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState([]);
   const [addresses, setAddresses] = useState([]);
@@ -164,6 +168,12 @@ export default function AccountPage() {
           >
             Sổ địa chỉ
           </button>
+          <button
+            className={tab === "settings" ? "active" : ""}
+            onClick={() => setTab("settings")}
+          >
+            Cài đặt
+          </button>
         </aside>
         <section className="account-panel">
           {tab === "orders" && (
@@ -290,6 +300,48 @@ export default function AccountPage() {
                 </label>
                 <button className="btn btn-primary">Lưu thay đổi</button>
               </form>
+            </>
+          )}
+          {tab === "settings" && (
+            <>
+              <h2>Cài đặt</h2>
+              <div className="settings-list">
+                <div className="settings-row">
+                  <div>
+                    <b>Ngôn ngữ</b>
+                    <p>Chọn ngôn ngữ hiển thị cho toàn bộ website.</p>
+                  </div>
+                  <select
+                    className="language-select"
+                    value={language}
+                    onChange={(event) => setLanguage(event.target.value)}
+                    aria-label="Ngôn ngữ"
+                  >
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+                <div className="settings-row">
+                  <div>
+                    <b>Giao diện tối</b>
+                    <p>
+                      {isDark
+                        ? "Đang dùng giao diện tối."
+                        : "Đang dùng giao diện sáng."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className={isDark ? "theme-switch active" : "theme-switch"}
+                    onClick={toggleTheme}
+                    role="switch"
+                    aria-checked={isDark}
+                    aria-label="Chuyển giao diện sáng hoặc tối"
+                  >
+                    <span>{isDark ? "Tối" : "Sáng"}</span>
+                  </button>
+                </div>
+              </div>
             </>
           )}
           {tab === "addresses" && (
