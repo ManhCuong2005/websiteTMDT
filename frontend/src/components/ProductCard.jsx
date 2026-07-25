@@ -6,7 +6,7 @@ import { errorMessage } from "../services/api";
 import ProductVisual from "./ProductVisual";
 import { Icon } from "./Icons";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, recommendationReason }) {
   const { addItem } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +33,7 @@ export default function ProductCard({ product }) {
         {product.stockQuantity <= 0 && <span className="out-badge">Hết hàng</span>}
       </Link>
       <div className="product-card-body">
+        {recommendationReason && <span className="recommendation-reason">{recommendationReason}</span>}
         <span className="eyebrow">{product.categoryName}</span>
         <Link className="product-title" to={`/san-pham/${product.slug}`}>{product.name}</Link>
         <div className="rating-line">

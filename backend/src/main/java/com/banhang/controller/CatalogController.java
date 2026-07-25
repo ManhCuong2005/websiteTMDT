@@ -2,7 +2,9 @@ package com.banhang.controller;
 
 import com.banhang.dto.CommonDtos;
 import com.banhang.dto.ProductDtos;
+import com.banhang.dto.RecommendationDtos;
 import com.banhang.service.CatalogService;
+import com.banhang.service.RecommendationService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,9 +17,11 @@ import java.util.List;
 @RequestMapping("/api")
 public class CatalogController {
     private final CatalogService catalogService;
+    private final RecommendationService recommendationService;
 
-    public CatalogController(CatalogService catalogService) {
+    public CatalogController(CatalogService catalogService, RecommendationService recommendationService) {
         this.catalogService = catalogService;
+        this.recommendationService = recommendationService;
     }
 
     @GetMapping("/categories")
@@ -38,6 +42,11 @@ public class CatalogController {
     @GetMapping("/products/featured")
     public List<ProductDtos.ProductResponse> featured() {
         return catalogService.featured();
+    }
+
+    @GetMapping("/products/recommendations")
+    public RecommendationDtos.RecommendationResponse recommendations() {
+        return recommendationService.recommendations();
     }
 
     @GetMapping("/products/{slug}")

@@ -47,6 +47,15 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @Query("""
         select p from Product p
+        join fetch p.category c
+        where p.active = true
+          and c.active = true
+          and p.stockQuantity > 0
+        """)
+    List<Product> findAvailableForRecommendations();
+
+    @Query("""
+        select p from Product p
         join p.category c
         where (
             :search = ''

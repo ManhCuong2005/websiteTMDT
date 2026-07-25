@@ -10,6 +10,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { Icon } from "./Icons";
+import AdvisorWidget from "./AdvisorWidget";
 
 export default function Layout() {
   const { user } = useAuth();
@@ -219,6 +220,8 @@ export default function Layout() {
         </div>
         <div className="footer-bottom">© 2026 CTCP Xử Lý Nước Minh Phát.</div>
       </footer>
+
+      <AdvisorWidget />
 
       <a
         className="floating-zalo"

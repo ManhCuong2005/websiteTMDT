@@ -328,3 +328,46 @@ LOILOC15
 - Bảng dữ liệu hành vi người dùng phục vụ học máy
 - Ganache + MetaMask + Solidity + ethers.js
 - Lưu transaction hash blockchain trong PostgreSQL
+
+# Đăng nhập bằng gương mặt
+
+Tính năng dùng InsightFace `buffalo_s` chạy cục bộ:
+
+- SCRFD phát hiện và lấy 5 điểm mốc gương mặt.
+- ArcFace tạo embedding 512 chiều; không dùng UMAP/KNN và không lưu ảnh.
+- Template được mã hóa AES-GCM trước khi lưu PostgreSQL.
+- Đăng nhập yêu cầu email, ảnh nhìn thẳng và một thử thách quay đầu/tiến gần.
+- Token thử thách dùng một lần, hết hạn sau 2 phút; khóa 15 phút sau 5 lần sai.
+- Mật khẩu và Google vẫn là phương thức đăng nhập dự phòng.
+
+Các file model và Python cục bộ nằm trong `face-service/` và đã được `.gitignore`.
+Trên máy mới, cài Python 3.11 vào `face-service\.python`, tải gói
+`buffalo_s.zip` từ InsightFace vào `face-service\models`, sau đó chạy:
+
+```bat
+setup-face-service.bat
+run-all.bat
+```
+
+Ba dịch vụ mặc định:
+
+```text
+Face service: http://127.0.0.1:8001
+Backend:      http://localhost:8080
+Frontend:     http://localhost:5173
+```
+
+Đăng ký gương mặt tại `Tài khoản > Cài đặt`. Trên trang đăng nhập, nhập email
+trước rồi chọn `Đăng nhập bằng gương mặt`. Camera trình duyệt hoạt động trên
+`localhost` hoặc HTTPS.
+
+Biến môi trường tùy chọn:
+
+```text
+FACE_SERVICE_URL=http://127.0.0.1:8001
+FACE_DATA_SECRET=mot-khoa-rieng-dai-va-ngau-nhien
+FACE_MATCH_THRESHOLD=0.45
+```
+
+Trong môi trường triển khai thật, bắt buộc đặt `FACE_DATA_SECRET` riêng, dùng
+HTTPS và thay kiểm tra chuyển động cơ bản bằng giải pháp PAD/liveness chuyên dụng.

@@ -7,12 +7,14 @@ import { Icon } from "../components/Icons";
 export default function HomePage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [recommendations, setRecommendations] = useState(null);
 
   useEffect(() => {
-    Promise.all([api.get("/products/featured"), api.get("/categories")])
-      .then(([p, c]) => {
+    Promise.all([api.get("/products/featured"), api.get("/categories"), api.get("/products/recommendations")])
+      .then(([p, c, r]) => {
         setProducts(p.data);
         setCategories(c.data);
+        setRecommendations(r.data);
       })
       .catch(() => {});
   }, []);
@@ -109,6 +111,15 @@ export default function HomePage() {
 
       <section className="section section-tint">
         <div className="container">
+          {recommendations?.products?.length > 0 && <div className="recommendations-block">
+            <div className="recommendation-heading">
+              <span className="recommendation-icon"><Icon name="star" size={18} /></span>
+              <div><span className="eyebrow">GỢI Ý THÔNG MINH</span><h2>Gợi ý dành cho bạn</h2><p>{recommendations.subtitle}</p></div>
+            </div>
+            <div className="product-grid recommendation-grid">
+              {recommendations.products.map(({ product, reason }) => <ProductCard key={product.id} product={product} recommendationReason={reason} />)}
+            </div>
+          </div>}
           <div className="section-heading">
             <div><span className="eyebrow">ĐƯỢC QUAN TÂM</span><h2>Sản phẩm nổi bật</h2></div>
             <Link to="/san-pham">Xem toàn bộ →</Link>

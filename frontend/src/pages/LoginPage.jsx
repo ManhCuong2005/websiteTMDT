@@ -4,14 +4,16 @@ import { useAuth } from '../contexts/AuthContext'
 import { errorMessage } from '../services/api'
 import GoogleButton from '../components/GoogleButton'
 import { Icon } from '../components/Icons'
+import FaceCaptureDialog from '../components/FaceCaptureDialog'
 
 export default function LoginPage() {
-  const { user, login, googleLogin } = useAuth()
+  const { user, login, googleLogin, acceptAuthResponse } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [faceOpen, setFaceOpen] = useState(false)
 
   const destination = location.state?.from || '/'
 
@@ -49,6 +51,21 @@ export default function LoginPage() {
       alert(errorMessage(err))
     }
   }, [googleLogin, destination])
+
+  const openFaceLogin = () => {
+    const email = form.email.trim()
+    if (!email || !email.includes('@')) {
+      alert('Vui lòng nhập email hợp lệ trước khi xác thực gương mặt.')
+      return
+    }
+    setFaceOpen(true)
+  }
+
+  const onFaceAuthenticated = (response) => {
+    const nextUser = acceptAuthResponse(response)
+    setFaceOpen(false)
+    goAfterLogin(nextUser)
+  }
 
   return (
     <div className="auth-page">
@@ -96,6 +113,15 @@ export default function LoginPage() {
           <button type="submit" className="btn btn-primary full" disabled={busy}>
             {busy ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
+          <button
+            type="button"
+            className="btn btn-outline full face-login-button"
+            onClick={openFaceLogin}
+            disabled={busy}
+          >
+            <Icon name="camera" size={19} />
+            Đăng nhập bằng gương mặt
+          </button>
         </form>
         <div className="auth-divider"><span>hoặc</span></div>
         <GoogleButton onCredential={onGoogle} />
@@ -104,6 +130,14 @@ export default function LoginPage() {
           <code>admin@banhang.vn / Admin@123</code>
         </div>
       </div>
+      {faceOpen && (
+        <FaceCaptureDialog
+          mode="login"
+          email={form.email.trim()}
+          onClose={() => setFaceOpen(false)}
+          onAuthenticated={onFaceAuthenticated}
+        />
+      )}
     </div>
   )
 }

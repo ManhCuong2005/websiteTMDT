@@ -11,3 +11,9 @@ frontend/dist/
 *.log
 .DS_Store
 Thumbs.db
+
+# Local face-recognition runtime and downloaded models
+face-service/.python/
+face-service/models/
+face-service/__pycache__/
+face-service/.pytest_cache/

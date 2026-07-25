@@ -55,9 +55,11 @@ public class SecurityConfig {
                         }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.POST,
-                                "/api/auth/register", "/api/auth/register/verify", "/api/auth/login", "/api/auth/google").permitAll()
+                                "/api/auth/register", "/api/auth/register/verify", "/api/auth/login", "/api/auth/google",
+                                "/api/auth/face/challenge", "/api/auth/face/verify").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/health").permitAll()
+                        .requestMatchers("/api/advisor/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET,
                                 "/api/categories/**", "/api/products/**", "/api/reviews/product/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

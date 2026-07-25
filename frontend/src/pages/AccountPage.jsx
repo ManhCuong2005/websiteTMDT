@@ -5,6 +5,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { dateTime, money, statusLabel } from "../services/format";
 import { Icon } from "../components/Icons";
+import FaceCaptureDialog from "../components/FaceCaptureDialog";
 
 export default function AccountPage() {
   const { user, setUser, logout } = useAuth();
@@ -19,6 +20,9 @@ export default function AccountPage() {
     avatarUrl: user.avatarUrl || "",
   });
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [faceStatus, setFaceStatus] = useState(null);
+  const [faceOpen, setFaceOpen] = useState(false);
+  const [faceBusy, setFaceBusy] = useState(false);
   const [addressForm, setAddressForm] = useState({
     recipientName: user.fullName || "",
     phone: user.phone || "",
@@ -42,7 +46,35 @@ export default function AccountPage() {
   useEffect(() => {
     loadOrders();
     loadAddresses();
+    api
+      .get("/auth/face/status")
+      .then((response) => setFaceStatus(response.data))
+      .catch(() => {});
   }, []);
+
+  const faceEnrolled = (result) => {
+    setFaceOpen(false);
+    setFaceStatus({
+      enrolled: true,
+      enrolledAt: new Date().toISOString(),
+      lastVerifiedAt: faceStatus?.lastVerifiedAt || null,
+    });
+    alert(result.message);
+  };
+
+  const deleteFace = async () => {
+    if (!window.confirm("Xóa dữ liệu đăng nhập bằng gương mặt?")) return;
+    setFaceBusy(true);
+    try {
+      const response = await api.delete("/auth/face");
+      setFaceStatus({ enrolled: false, enrolledAt: null, lastVerifiedAt: null });
+      alert(response.data.message);
+    } catch (error) {
+      alert(errorMessage(error));
+    } finally {
+      setFaceBusy(false);
+    }
+  };
 
   const syncUser = (next) => {
     setUser(next);
@@ -348,6 +380,42 @@ export default function AccountPage() {
                     <span>{isDark ? "Tối" : "Sáng"}</span>
                   </button>
                 </div>
+                <div className="settings-row face-settings-row">
+                  <div>
+                    <b>
+                      Đăng nhập bằng gương mặt
+                      {faceStatus?.enrolled && <span className="face-enabled-badge">Đã bật</span>}
+                    </b>
+                    <p>
+                      {faceStatus?.enrolled
+                        ? "Gương mặt đã được bảo vệ và sẵn sàng để đăng nhập."
+                        : "Đăng ký bằng camera sau khi đã đăng nhập tài khoản."}
+                    </p>
+                  </div>
+                  <div className="face-settings-actions">
+                    <button
+                      type="button"
+                      className="btn btn-outline face-settings-button"
+                      onClick={() => setFaceOpen(true)}
+                      disabled={faceBusy}
+                    >
+                      <Icon name="camera" size={18} />
+                      {faceStatus?.enrolled ? "Đăng ký lại" : "Đăng ký"}
+                    </button>
+                    {faceStatus?.enrolled && (
+                      <button
+                        type="button"
+                        className="face-delete-button"
+                        onClick={deleteFace}
+                        disabled={faceBusy}
+                        aria-label="Xóa gương mặt"
+                        title="Xóa dữ liệu gương mặt"
+                      >
+                        <Icon name="trash" size={18} />
+                      </button>
+                    )}
+                  </div>
+                </div>
                 <div className="settings-row settings-row-danger">
                   <div>
                     <b>Đăng xuất</b>
@@ -488,6 +556,14 @@ export default function AccountPage() {
           )}
         </section>
       </div>
+      {faceOpen && (
+        <FaceCaptureDialog
+          mode="enroll"
+          email={user.email}
+          onClose={() => setFaceOpen(false)}
+          onEnrolled={faceEnrolled}
+        />
+      )}
     </div>
   );
 }

@@ -14,8 +14,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    @EntityGraph(attributePaths = {"items", "items.product"})
+    @EntityGraph(attributePaths = {"items", "items.product", "items.product.category"})
     List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    @Query("""
+        select oi.product.id, sum(oi.quantity)
+        from OrderItem oi
+        where oi.order.status = com.banhang.domain.enums.OrderStatus.DELIVERED
+        group by oi.product.id
+        """)
+    List<Object[]> findDeliveredProductQuantities();
 
     @EntityGraph(attributePaths = {"items", "items.product", "user"})
     Optional<Order> findById(Long id);

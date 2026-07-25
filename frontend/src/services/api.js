@@ -17,7 +17,8 @@ api.interceptors.response.use(
   (error) => {
     if (
       error.response?.status === 401 &&
-      !error.config?.url?.includes("/auth/login")
+      !error.config?.url?.includes("/auth/login") &&
+      !error.config?.url?.includes("/auth/face/verify")
     ) {
       localStorage.removeItem("banhang_token");
       localStorage.removeItem("banhang_user");

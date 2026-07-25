@@ -12,6 +12,7 @@ import com.banhang.repository.PendingRegistrationRepository;
 import com.banhang.repository.UserRepository;
 import com.banhang.security.JwtService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
@@ -51,7 +52,7 @@ public class AuthService {
                        JwtService jwtService,
                        MappingService mappingService,
                        EmailService emailService,
-                       RestClient googleRestClient,
+                       @Qualifier("googleRestClient") RestClient googleRestClient,
                        @Value("${app.google.client-id}") String googleClientId) {
         this.userRepository = userRepository;
         this.pendingRegistrationRepository = pendingRegistrationRepository;

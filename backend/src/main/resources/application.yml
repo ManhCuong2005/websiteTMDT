@@ -3,8 +3,8 @@ spring:
     name: banhang-backend
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 5MB
+      max-file-size: 8MB
+      max-request-size: 24MB
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/banhang_db}
     username: ${DB_USERNAME:postgres}
@@ -63,6 +63,13 @@ app:
     cloud-name: ${CLOUDINARY_CLOUD_NAME:}
     api-key: ${CLOUDINARY_API_KEY:}
     api-secret: ${CLOUDINARY_API_SECRET:}
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+  face:
+    service-url: ${FACE_SERVICE_URL:http://127.0.0.1:8001}
+    encryption-secret: ${FACE_DATA_SECRET:${app.jwt.secret}}
+    match-threshold: ${FACE_MATCH_THRESHOLD:0.45}
 
 logging:
   level:

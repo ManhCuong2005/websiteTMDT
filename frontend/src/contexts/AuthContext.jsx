@@ -25,6 +25,7 @@ export function AuthProvider({ children }) {
   const register = async (payload) => (await api.post('/auth/register', payload)).data
   const verifyRegistration = async (payload) => persist((await api.post('/auth/register/verify', payload)).data)
   const googleLogin = async (credential) => persist((await api.post('/auth/google', { credential })).data)
+  const acceptAuthResponse = (response) => persist(response)
 
   const refreshMe = async () => {
     if (!localStorage.getItem('banhang_token')) return null
@@ -53,7 +54,7 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('banhang-auth-expired', expired)
   }, [])
 
-  const value = useMemo(() => ({ user, loading, login, register, verifyRegistration, googleLogin, refreshMe, logout, setUser }), [user, loading])
+  const value = useMemo(() => ({ user, loading, login, register, verifyRegistration, googleLogin, acceptAuthResponse, refreshMe, logout, setUser }), [user, loading])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
