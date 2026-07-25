@@ -4898,6 +4898,42 @@ td > small {
   line-height: 1.6;
 }
 
+.settings-row-danger {
+  align-items: flex-start;
+  border-color: #f0d1d1;
+  background: #fff7f7;
+}
+
+.settings-logout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 132px;
+  min-height: 42px;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid #d87676;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #9c3d3d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.settings-logout-button:hover {
+  border-color: #b84b4b;
+  background: #b84b4b;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
 .language-select {
   width: min(220px, 100%);
   min-width: 180px;
@@ -5120,6 +5156,23 @@ html[data-theme="dark"] .summary-note,
 html[data-theme="dark"] .settings-row p,
 html[data-theme="dark"] .account-header p {
   color: var(--muted);
+}
+
+html[data-theme="dark"] .settings-row-danger {
+  border-color: rgba(216, 118, 118, 0.42);
+  background: rgba(71, 30, 34, 0.38);
+}
+
+html[data-theme="dark"] .settings-logout-button {
+  border-color: rgba(216, 118, 118, 0.62);
+  background: rgba(42, 20, 23, 0.72);
+  color: #ffb8b8;
+}
+
+html[data-theme="dark"] .settings-logout-button:hover {
+  border-color: #d87676;
+  background: #b84b4b;
+  color: #ffffff;
 }
 
 html[data-theme="dark"] .hero-orb {

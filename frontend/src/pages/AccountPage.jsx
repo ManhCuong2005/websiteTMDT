@@ -4,9 +4,10 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { dateTime, money, statusLabel } from "../services/format";
+import { Icon } from "../components/Icons";
 
 export default function AccountPage() {
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const { language, setLanguage } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
   const [tab, setTab] = useState("orders");
@@ -132,6 +133,12 @@ export default function AccountPage() {
       loadAddresses();
     }
   };
+  const handleLogout = () => {
+    const confirmed = window.confirm("Bạn có chắc chắn muốn đăng xuất không?");
+    if (!confirmed) return;
+    logout();
+  };
+
   return (
     <div className="page-section container">
       <div className="account-header">
@@ -339,6 +346,20 @@ export default function AccountPage() {
                     aria-label="Chuyển giao diện sáng hoặc tối"
                   >
                     <span>{isDark ? "Tối" : "Sáng"}</span>
+                  </button>
+                </div>
+                <div className="settings-row settings-row-danger">
+                  <div>
+                    <b>Đăng xuất</b>
+                    <p>Nhấn để đăng xuất khỏi tài khoản hiện tại.</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="settings-logout-button"
+                    onClick={handleLogout}
+                  >
+                    <Icon name="logout" size={18} />
+                    <span>Đăng xuất</span>
                   </button>
                 </div>
               </div>
