@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
 import { Icon } from "../components/Icons";
+import { dateTime } from "../services/format";
+import UserAvatar from "../components/UserAvatar";
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [recommendations, setRecommendations] = useState(null);
+  const [serviceReviews, setServiceReviews] = useState([]);
 
   useEffect(() => {
     Promise.all([api.get("/products/featured"), api.get("/categories"), api.get("/products/recommendations")])
@@ -17,6 +20,9 @@ export default function HomePage() {
         setRecommendations(r.data);
       })
       .catch(() => {});
+    api.get("/service-requests/reviews/featured", { params: { size: 3 } })
+      .then((response) => setServiceReviews(Array.isArray(response.data) ? response.data : []))
+      .catch(() => setServiceReviews([]));
   }, []);
 
   const categorySymbol = (slug) => {
@@ -29,6 +35,13 @@ export default function HomePage() {
     { icon: "tool", title: "Lắp đặt máy lọc", desc: "Kỹ thuật viên đến tận nhà, kiểm tra vị trí và lắp đặt gọn gàng." },
     { icon: "droplet", title: "Kiểm tra nguồn nước", desc: "Đo nhanh TDS, tư vấn lõi lọc phù hợp với tình trạng nước thực tế." },
     { icon: "calendar", title: "Bảo trì định kỳ", desc: "Nhắc lịch thay lõi, vệ sinh máy và kiểm tra rò rỉ để dùng bền hơn." },
+  ];
+
+  const journeySteps = [
+    { number: "01", icon: "message", title: "Chia sẻ nhu cầu", desc: "Cho chúng tôi biết tình trạng nguồn nước, thiết bị hoặc dịch vụ bạn đang cần." },
+    { number: "02", icon: "sparkles", title: "Nhận tư vấn phù hợp", desc: "Minh Phát đề xuất giải pháp rõ ràng theo nhu cầu và ngân sách thực tế." },
+    { number: "03", icon: "calendar", title: "Chọn lịch thuận tiện", desc: "Đặt thời gian kỹ thuật viên đến kiểm tra, lắp đặt hoặc bảo trì tận nhà." },
+    { number: "04", icon: "shield", title: "An tâm sử dụng", desc: "Theo dõi đơn hàng, lịch sử dịch vụ và nhận hỗ trợ xuyên suốt sau mua." },
   ];
 
   return (
@@ -137,6 +150,80 @@ export default function HomePage() {
             <Link className="btn btn-light" to="/san-pham?category=loi-loc-nuoc">Chọn lõi lọc phù hợp</Link>
           </div>
           <div className="knowledge-rings"><span /><span /><span /><b>H2O</b></div>
+        </div>
+      </section>
+
+      <section className="section process-section">
+        <div className="container">
+          <div className="section-heading process-heading">
+            <div>
+              <span className="eyebrow">QUY TRÌNH ĐƠN GIẢN</span>
+              <h2>Từ nhu cầu đến nguồn nước an tâm</h2>
+              <p>Một quy trình rõ ràng giúp bạn dễ lựa chọn, dễ đặt lịch và luôn biết bước tiếp theo.</p>
+            </div>
+            <Link className="text-link" to="/dat-lich">Bắt đầu đặt lịch <Icon name="chevron" size={16} /></Link>
+          </div>
+          <div className="journey-grid">
+            {journeySteps.map((step) => (
+              <article className="journey-card" key={step.number}>
+                <span className="journey-number">{step.number}</span>
+                <span className="journey-icon"><Icon name={step.icon} /></span>
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section proof-section">
+        <div className="container proof-grid">
+          <div className="proof-copy">
+            <span className="eyebrow">ĐỒNG HÀNH DÀI LÂU</span>
+            <h2>Không chỉ bán thiết bị,<br />chúng tôi chăm sóc cả quá trình sử dụng</h2>
+            <p>Từ lúc lựa chọn sản phẩm đến kiểm tra, thay lõi và bảo trì định kỳ, mọi nhu cầu đều được tiếp nhận trên cùng một hệ thống.</p>
+            <div className="proof-numbers">
+              <div><b>7/7</b><span>Ngày hỗ trợ mỗi tuần</span></div>
+              <div><b>4 bước</b><span>Quy trình minh bạch</span></div>
+              <div><b>Tận nhà</b><span>Kiểm tra và lắp đặt</span></div>
+            </div>
+          </div>
+          <div className="testimonial-stack">
+            {serviceReviews.length > 0 ? serviceReviews.map((item, index) => (
+              <article className={index === 1 ? "testimonial-card featured" : "testimonial-card"} key={item.id}>
+                <div className="testimonial-top">
+                  <UserAvatar
+                    avatarUrl={item.customerAvatarUrl}
+                    name={item.customerName}
+                    size={38}
+                    className="testimonial-user-avatar"
+                  />
+                  <div><b>{item.customerName}</b><small>{item.serviceType} · {dateTime(item.createdAt)}</small></div>
+                  <span className="testimonial-stars">{"★".repeat(item.rating)}</span>
+                </div>
+                <p>“{item.content}”</p>
+              </article>
+            )) : (
+              <article className="service-review-empty">
+                <span><Icon name="star" /></span>
+                <h3>Đánh giá dịch vụ thực tế</h3>
+                <p>Đánh giá sẽ xuất hiện tại đây sau khi khách hàng xác nhận hoàn thành và chia sẻ trải nghiệm.</p>
+                <Link to="/dat-lich">Đặt lịch trải nghiệm dịch vụ →</Link>
+              </article>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="section container home-final-cta">
+        <div>
+          <span className="eyebrow">BẠN CẦN HỖ TRỢ?</span>
+          <h2>Bắt đầu với một nguồn nước tốt hơn ngay hôm nay</h2>
+          <p>Khám phá thiết bị phù hợp hoặc đặt lịch để đội ngũ Minh Phát kiểm tra trực tiếp tại nhà.</p>
+        </div>
+        <div>
+          <Link className="btn btn-light" to="/san-pham">Xem sản phẩm</Link>
+          <Link className="btn btn-cta-outline" to="/dat-lich">Đặt lịch kỹ thuật viên</Link>
         </div>
       </section>
     </>

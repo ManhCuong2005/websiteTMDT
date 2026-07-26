@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import api, { errorMessage } from "../../services/api";
 import { dateTime, money, statusLabel } from "../../services/format";
 import { Icon } from "../../components/Icons";
+import UserAvatar from "../../components/UserAvatar";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 const statuses = [
   "",
@@ -35,6 +37,7 @@ function countByStatus(orders, status) {
 }
 
 export default function AdminOrders() {
+  const { t } = useLanguage();
   const [orders, setOrders] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [status, setStatus] = useState("");
@@ -212,10 +215,12 @@ export default function AdminOrders() {
                     <div className="order-admin-head">
                       <div>
                         <b>#{order.orderCode}</b>
-                        <small>
-                          {dateTime(order.createdAt)} · {order.customerName} (
-                          {order.customerEmail})
-                        </small>
+                        <span className="order-admin-customer">
+                          <UserAvatar avatarUrl={order.customerAvatarUrl} name={order.customerName} size={27} />
+                          <small>
+                            {dateTime(order.createdAt)} · {order.customerName} ({order.customerEmail})
+                          </small>
+                        </span>
                       </div>
                       <span
                         className={`status status-${order.status.toLowerCase()}`}
@@ -262,10 +267,10 @@ export default function AdminOrders() {
                     <div>
                       <span className="eyebrow">CHI TIẾT ĐƠN</span>
                       <h2>#{selectedOrder.orderCode}</h2>
-                      <p>
-                        {selectedOrder.customerName} ·{" "}
-                        {selectedOrder.customerEmail}
-                      </p>
+                      <div className="order-detail-customer">
+                        <UserAvatar avatarUrl={selectedOrder.customerAvatarUrl} name={selectedOrder.customerName} size={32} />
+                        <span>{selectedOrder.customerName} · {selectedOrder.customerEmail}</span>
+                      </div>
                     </div>
                     <span
                       className={`status status-${selectedOrder.status.toLowerCase()}`}
@@ -327,7 +332,7 @@ export default function AdminOrders() {
                         disabled={busyId === selectedOrder.id}
                         onClick={() => {
                           const confirmed = window.confirm(
-                            "Bạn có chắc chắn muốn hủy đơn hàng này không?\nHành động này không thể hoàn tác.",
+                            t("Bạn có chắc chắn muốn hủy đơn hàng này không?\nHành động này không thể hoàn tác."),
                           );
 
                           if (confirmed) {

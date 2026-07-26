@@ -73,6 +73,7 @@ public final class AdminDtos {
             String fullName,
             String email,
             String phone,
+            String avatarUrl,
             UserRole role,
             AuthProvider provider,
             boolean enabled,

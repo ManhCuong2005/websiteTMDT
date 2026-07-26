@@ -54,11 +54,26 @@ public class ServiceRequest extends BaseEntity {
     @Column(name = "admin_note", length = 1000)
     private String adminNote;
 
+    @Column(name = "staff_result_note", length = 1000)
+    private String staffResultNote;
+
+    @Column(length = 1000)
+    private String complaint;
+
     @Column(name = "contacted_at")
     private LocalDateTime contactedAt;
 
+    @Column(name = "staff_contacted_at")
+    private LocalDateTime staffContactedAt;
+
     @Column(name = "assigned_at")
     private LocalDateTime assignedAt;
+
+    @Column(name = "staff_completed_at")
+    private LocalDateTime staffCompletedAt;
+
+    @Column(name = "customer_confirmed_at")
+    private LocalDateTime customerConfirmedAt;
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;

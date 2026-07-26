@@ -3,7 +3,9 @@ package com.banhang.domain.enums;
 public enum ServiceRequestStatus {
     NEW,
     CONTACTED,
-    SCHEDULED,
-    DONE,
+    ASSIGNED,
+    STAFF_COMPLETED,
+    COMPLETED,
+    DISPUTED,
     CANCELLED
 }

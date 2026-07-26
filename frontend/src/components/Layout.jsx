@@ -9,13 +9,16 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { useLanguage } from "../contexts/LanguageContext";
 import { Icon } from "./Icons";
 import AdvisorWidget from "./AdvisorWidget";
+import UserAvatar from "./UserAvatar";
 
 export default function Layout() {
   const { user } = useAuth();
   const { cart } = useCart();
   const { isDark, toggleTheme } = useTheme();
+  const { language, setLanguage, isEnglish } = useLanguage();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
@@ -41,6 +44,15 @@ export default function Layout() {
 
   return (
     <div className="site-shell">
+      <div className="utility-bar">
+        <div className="utility-inner">
+          <span><Icon name="shield" size={14} /> Thiết bị chính hãng · Bảo hành minh bạch</span>
+          <div>
+            <a href="tel:0977148627">Hotline: <b>0977 148 627</b></a>
+            <span>Hỗ trợ mỗi ngày, 8:00 - 21:00</span>
+          </div>
+        </div>
+      </div>
       <header className="site-header">
         <div className="header-inner header-container">
           <Link className="brand" to="/" onClick={closeMenu}>
@@ -84,12 +96,17 @@ export default function Layout() {
                 Đơn hàng
               </NavLink>
             )}
+            {user?.role === "CUSTOMER" && (
+              <NavLink to="/lich-su-dat-lich" onClick={closeMenu}>
+                Lịch sử đặt lịch
+              </NavLink>
+            )}
 
             <div className="mobile-nav-account">
               {user ? (
                 <>
                   <NavLink to={accountPath} onClick={closeMenu}>
-                    <Icon name="user" size={18} />
+                    <UserAvatar avatarUrl={user.avatarUrl} name={user.fullName} size={27} />
                     <span>
                       {user.role === "STAFF"
                         ? "Công việc của tôi"
@@ -125,9 +142,12 @@ export default function Layout() {
                     to={accountPath}
                     title="Thông tin tài khoản"
                   >
-                    <span className="header-action-icon">
-                      <Icon name="user" />
-                    </span>
+                    <UserAvatar
+                      avatarUrl={user.avatarUrl}
+                      name={user.fullName}
+                      size={32}
+                      className="header-user-avatar"
+                    />
                     <span className="account-text">
                       <small>
                         {user.role === "STAFF" ? "Nhân viên" : "Tài khoản"}
@@ -146,6 +166,24 @@ export default function Layout() {
                   <span>Đăng nhập</span>
                 </Link>
               )}
+
+              <button
+                type="button"
+                className="language-toggle"
+                onClick={() => setLanguage(isEnglish ? "vi" : "en")}
+                title={
+                  isEnglish
+                    ? "Chuyển sang tiếng Việt"
+                    : "Chuyển sang tiếng Anh"
+                }
+                aria-label={
+                  isEnglish
+                    ? "Chuyển sang tiếng Việt"
+                    : "Chuyển sang tiếng Anh"
+                }
+              >
+                <span>{language.toUpperCase()}</span>
+              </button>
 
               <button
                 type="button"
@@ -185,7 +223,7 @@ export default function Layout() {
 
       <footer className="site-footer">
         <div className="container footer-grid">
-          <div>
+          <div className="footer-intro">
             <Link className="brand footer-brand" to="/">
               <span className="brand-drop">MP</span>
               <span className="brand-text">
@@ -197,6 +235,10 @@ export default function Layout() {
               Giải pháp kiểm tra, lắp đặt và bảo trì máy lọc nước đáng tin cậy
               cho mọi gia đình Việt.
             </p>
+            <div className="footer-trust">
+              <span><Icon name="shield" size={15} /> Sản phẩm rõ nguồn gốc</span>
+              <span><Icon name="tool" size={15} /> Kỹ thuật tận nhà</span>
+            </div>
           </div>
           <div>
             <h4>Danh mục</h4>
@@ -218,7 +260,10 @@ export default function Layout() {
             <span>Bảo hành tận nơi</span>
           </div>
         </div>
-        <div className="footer-bottom">© 2026 CTCP Xử Lý Nước Minh Phát.</div>
+        <div className="footer-bottom">
+          <span>© 2026 CTCP Xử Lý Nước Minh Phát.</span>
+          <span>Nước sạch cho cuộc sống an tâm.</span>
+        </div>
       </footer>
 
       <AdvisorWidget />

@@ -4,6 +4,7 @@ import com.banhang.domain.enums.AuthProvider;
 import com.banhang.domain.enums.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public final class AuthDtos {
@@ -53,6 +54,58 @@ public final class AuthDtos {
             String email,
             @NotBlank
             String code
+    ) {
+    }
+
+    public record ChangePasswordRequest(
+            @NotBlank(message = "Mật khẩu hiện tại không được để trống")
+            String currentPassword,
+            @NotBlank(message = "Mật khẩu mới không được để trống")
+            @Size(min = 6, max = 100, message = "Mật khẩu mới phải từ 6 đến 100 ký tự")
+            String newPassword,
+            @NotBlank(message = "Vui lòng xác nhận mật khẩu mới")
+            String newPasswordConfirmation
+    ) {
+    }
+
+    public record ForgotPasswordRequest(
+            @NotBlank(message = "Email không được để trống")
+            @Email(message = "Email không hợp lệ")
+            String email
+    ) {
+    }
+
+    public record VerifyPasswordResetCodeRequest(
+            @NotBlank(message = "Email không được để trống")
+            @Email(message = "Email không hợp lệ")
+            String email,
+            @NotBlank(message = "Mã xác thực không được để trống")
+            @Size(min = 6, max = 6, message = "Mã xác thực phải gồm 6 chữ số")
+            @Pattern(regexp = "\\d{6}", message = "Mã xác thực phải gồm 6 chữ số")
+            String code
+    ) {
+    }
+
+    public record ResetPasswordRequest(
+            @NotBlank(message = "Phiên đặt lại mật khẩu không hợp lệ")
+            String resetToken,
+            @NotBlank(message = "Mật khẩu mới không được để trống")
+            @Size(min = 6, max = 100, message = "Mật khẩu mới phải từ 6 đến 100 ký tự")
+            String newPassword,
+            @NotBlank(message = "Vui lòng xác nhận mật khẩu mới")
+            String newPasswordConfirmation
+    ) {
+    }
+
+    public record PasswordResetStartResponse(
+            String message,
+            int expiresInMinutes
+    ) {
+    }
+
+    public record VerifyPasswordResetCodeResponse(
+            String resetToken,
+            int expiresInMinutes
     ) {
     }
 

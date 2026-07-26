@@ -72,6 +72,7 @@ public final class OrderDtos {
             Long userId,
             String customerName,
             String customerEmail,
+            String customerAvatarUrl,
             OrderStatus status,
             PaymentMethod paymentMethod,
             PaymentStatus paymentStatus,

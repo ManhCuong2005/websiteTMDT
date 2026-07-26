@@ -1,7 +1,9 @@
 package com.banhang.controller;
 
 import com.banhang.dto.AuthDtos;
+import com.banhang.dto.CommonDtos;
 import com.banhang.service.AuthService;
+import com.banhang.service.PasswordService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+    private final PasswordService passwordService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, PasswordService passwordService) {
         this.authService = authService;
+        this.passwordService = passwordService;
     }
 
     @PostMapping("/register")
@@ -41,5 +45,29 @@ public class AuthController {
     @GetMapping("/me")
     public AuthDtos.UserResponse me() {
         return authService.me();
+    }
+
+    @PostMapping("/password/change")
+    public CommonDtos.MessageResponse changePassword(
+            @Valid @RequestBody AuthDtos.ChangePasswordRequest request) {
+        return passwordService.changePassword(request);
+    }
+
+    @PostMapping("/password/forgot")
+    public AuthDtos.PasswordResetStartResponse forgotPassword(
+            @Valid @RequestBody AuthDtos.ForgotPasswordRequest request) {
+        return passwordService.requestReset(request);
+    }
+
+    @PostMapping("/password/verify-code")
+    public AuthDtos.VerifyPasswordResetCodeResponse verifyPasswordResetCode(
+            @Valid @RequestBody AuthDtos.VerifyPasswordResetCodeRequest request) {
+        return passwordService.verifyResetCode(request);
+    }
+
+    @PostMapping("/password/reset")
+    public CommonDtos.MessageResponse resetPassword(
+            @Valid @RequestBody AuthDtos.ResetPasswordRequest request) {
+        return passwordService.resetPassword(request);
     }
 }

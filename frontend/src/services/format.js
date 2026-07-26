@@ -1,11 +1,14 @@
-export const money = (value = 0) => new Intl.NumberFormat("vi-VN", {
+const currentLocale = () =>
+  document.documentElement.lang === "en" ? "en-US" : "vi-VN";
+
+export const money = (value = 0) => new Intl.NumberFormat(currentLocale(), {
   style: "currency",
   currency: "VND",
   maximumFractionDigits: 0,
 }).format(Number(value || 0));
 
 export const dateTime = (value) => value
-  ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(new Date(value))
+  ? new Intl.DateTimeFormat(currentLocale(), { dateStyle: "short", timeStyle: "short" }).format(new Date(value))
   : "—";
 
 export const statusLabel = {

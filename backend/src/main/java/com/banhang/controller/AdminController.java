@@ -158,11 +158,18 @@ public class AdminController {
         return serviceRequestService.staffOptions();
     }
 
-    @PatchMapping("/service-requests/{id}/status")
-    public ServiceRequestDtos.ServiceRequestResponse updateServiceRequestStatus(
+    @PatchMapping("/service-requests/{id}/contact")
+    public ServiceRequestDtos.ServiceRequestResponse contactServiceRequest(
             @PathVariable Long id,
-            @RequestBody ServiceRequestDtos.UpdateServiceRequestStatusRequest request) {
-        return serviceRequestService.updateStatus(id, request);
+            @RequestBody ServiceRequestDtos.AdminServiceActionRequest request) {
+        return serviceRequestService.adminContact(id, request);
+    }
+
+    @PatchMapping("/service-requests/{id}/cancel")
+    public ServiceRequestDtos.ServiceRequestResponse cancelServiceRequest(
+            @PathVariable Long id,
+            @RequestBody ServiceRequestDtos.AdminServiceActionRequest request) {
+        return serviceRequestService.adminCancel(id, request);
     }
 
     @PatchMapping("/service-requests/{id}/assign")

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api, { errorMessage } from "../../services/api";
 import { money } from "../../services/format";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 const empty = {
   categoryId: "",
@@ -20,6 +21,7 @@ const empty = {
 };
 
 export default function AdminProducts() {
+  const { t } = useLanguage();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState(empty);
@@ -71,13 +73,13 @@ export default function AdminProducts() {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
-      alert("Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP");
+      alert(t("Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP"));
       event.target.value = "";
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Hình ảnh không được vượt quá 5 MB");
+      alert(t("Hình ảnh không được vượt quá 5 MB"));
       event.target.value = "";
       return;
     }
@@ -124,7 +126,7 @@ export default function AdminProducts() {
     }
   };
   const remove = async (id) => {
-    if (confirm("Ẩn sản phẩm này khỏi cửa hàng?")) {
+    if (confirm(t("Ẩn sản phẩm này khỏi cửa hàng?"))) {
       await api.delete(`/admin/products/${id}`);
       load();
     }

@@ -8,7 +8,9 @@ import ProductDetailPage from './pages/ProductDetailPage'
 import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
 import ServiceBookingPage from './pages/ServiceBookingPage'
+import ServiceHistoryPage from './pages/ServiceHistoryPage'
 import LoginPage from './pages/LoginPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import RegisterPage from './pages/RegisterPage'
 import AccountPage from './pages/AccountPage'
 import OrdersPage from './pages/OrdersPage'
@@ -31,8 +33,10 @@ export default function App() {
         <Route path="san-pham/:slug" element={<ProductDetailPage/>}/>
         <Route path="gio-hang" element={<CartPage/>}/>
         <Route path="dat-lich" element={<ProtectedRoute><ServiceBookingPage/></ProtectedRoute>}/>
+        <Route path="lich-su-dat-lich" element={<ProtectedRoute><ServiceHistoryPage/></ProtectedRoute>}/>
         <Route path="thanh-toan" element={<ProtectedRoute><CheckoutPage/></ProtectedRoute>}/>
         <Route path="dang-nhap" element={<LoginPage/>}/>
+        <Route path="quen-mat-khau" element={<ForgotPasswordPage/>}/>
         <Route path="dang-ky" element={<RegisterPage/>}/>
         <Route path="don-hang" element={<ProtectedRoute><OrdersPage/></ProtectedRoute>}/>
         <Route path="tai-khoan" element={<ProtectedRoute><AccountPage/></ProtectedRoute>}/>

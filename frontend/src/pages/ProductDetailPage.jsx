@@ -6,6 +6,8 @@ import ProductVisual from '../components/ProductVisual'
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { Icon } from '../components/Icons'
+import { useLanguage } from '../contexts/LanguageContext'
+import UserAvatar from '../components/UserAvatar'
 
 const defaultReview = { rating: 5, title: '', content: '' }
 const defaultEligibility = {
@@ -18,6 +20,7 @@ export default function ProductDetailPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { addItem } = useCart()
+  const { t } = useLanguage()
   const [product, setProduct] = useState(null)
   const [reviews, setReviews] = useState([])
   const [quantity, setQuantity] = useState(1)
@@ -63,7 +66,7 @@ export default function ProductDetailPage() {
     if (!user) return navigate('/dang-nhap')
     try {
       await addItem(product.id, quantity)
-      alert('Đã thêm vào giỏ hàng')
+      alert(t('Đã thêm vào giỏ hàng'))
     } catch (e) {
       alert(errorMessage(e))
     }
@@ -72,7 +75,7 @@ export default function ProductDetailPage() {
   const submitReview = async (e) => {
     e.preventDefault()
     if (!reviewEligibility.canReview) {
-      alert(reviewEligibility.message)
+      alert(t(reviewEligibility.message))
       return
     }
     try {
@@ -162,7 +165,7 @@ export default function ProductDetailPage() {
         <div className="review-list">
           {reviews.length ? reviews.map((item) => (
             <article key={item.id} className="review-item">
-              <div className="avatar">{item.userName?.charAt(0)}</div>
+              <UserAvatar avatarUrl={item.userAvatarUrl} name={item.userName} size={42} />
               <div>
                 <div className="review-meta">
                   <b>{item.userName}</b>

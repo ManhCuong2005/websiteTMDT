@@ -7,9 +7,34 @@ import { dateTime, money, statusLabel } from "../services/format";
 import { Icon } from "../components/Icons";
 import FaceCaptureDialog from "../components/FaceCaptureDialog";
 
+function PasswordField({ value, onChange, autoComplete }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <span className="password-field">
+      <input
+        type={visible ? "text" : "password"}
+        minLength="6"
+        maxLength="100"
+        required
+        value={value}
+        onChange={onChange}
+        autoComplete={autoComplete}
+      />
+      <button
+        type="button"
+        className="password-toggle"
+        onClick={() => setVisible((current) => !current)}
+        aria-label={visible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+      >
+        <Icon name={visible ? "eyeOff" : "eye"} size={18} />
+      </button>
+    </span>
+  );
+}
+
 export default function AccountPage() {
   const { user, setUser, logout } = useAuth();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState([]);
@@ -23,6 +48,12 @@ export default function AccountPage() {
   const [faceStatus, setFaceStatus] = useState(null);
   const [faceOpen, setFaceOpen] = useState(false);
   const [faceBusy, setFaceBusy] = useState(false);
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    newPasswordConfirmation: "",
+  });
   const [addressForm, setAddressForm] = useState({
     recipientName: user.fullName || "",
     phone: user.phone || "",
@@ -63,7 +94,7 @@ export default function AccountPage() {
   };
 
   const deleteFace = async () => {
-    if (!window.confirm("Xóa dữ liệu đăng nhập bằng gương mặt?")) return;
+    if (!window.confirm(t("Xóa dữ liệu đăng nhập bằng gương mặt?"))) return;
     setFaceBusy(true);
     try {
       const response = await api.delete("/auth/face");
@@ -94,13 +125,13 @@ export default function AccountPage() {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
-      alert("Chi chap nhan anh JPG, PNG hoac WEBP");
+      alert(t("Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP"));
       event.target.value = "";
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Hinh anh khong duoc vuot qua 5 MB");
+      alert(t("Hình ảnh không được vượt quá 5 MB"));
       event.target.value = "";
       return;
     }
@@ -125,7 +156,7 @@ export default function AccountPage() {
     try {
       const next = (await api.put("/users/me", profile)).data;
       syncUser(next);
-      alert("Đã cập nhật thông tin");
+      alert(t("Đã cập nhật thông tin"));
     } catch (err) {
       alert(errorMessage(err));
     }
@@ -149,7 +180,7 @@ export default function AccountPage() {
     }
   };
   const cancel = async (id) => {
-    if (!confirm("Bạn chắc chắn muốn hủy đơn hàng này?")) return;
+    if (!confirm(t("Bạn chắc chắn muốn hủy đơn hàng này?"))) return;
     try {
       await api.post(`/orders/${id}/cancel`, {
         reason: "Khách hàng thay đổi nhu cầu",
@@ -160,15 +191,37 @@ export default function AccountPage() {
     }
   };
   const removeAddress = async (id) => {
-    if (confirm("Xóa địa chỉ này?")) {
+    if (confirm(t("Xóa địa chỉ này?"))) {
       await api.delete(`/users/me/addresses/${id}`);
       loadAddresses();
     }
   };
   const handleLogout = () => {
-    const confirmed = window.confirm("Bạn có chắc chắn muốn đăng xuất không?");
+    const confirmed = window.confirm(t("Bạn có chắc chắn muốn đăng xuất không?"));
     if (!confirmed) return;
     logout();
+  };
+  const changePassword = async (event) => {
+    event.preventDefault();
+    if (passwordBusy) return;
+    if (passwordForm.newPassword !== passwordForm.newPasswordConfirmation) {
+      alert(t("Mật khẩu mới và xác nhận mật khẩu không khớp"));
+      return;
+    }
+    setPasswordBusy(true);
+    try {
+      const response = await api.post("/auth/password/change", passwordForm);
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        newPasswordConfirmation: "",
+      });
+      alert(response.data.message);
+    } catch (error) {
+      alert(errorMessage(error));
+    } finally {
+      setPasswordBusy(false);
+    }
   };
 
   return (
@@ -380,6 +433,62 @@ export default function AccountPage() {
                     <span>{isDark ? "Tối" : "Sáng"}</span>
                   </button>
                 </div>
+                <details className="settings-row password-settings-row">
+                  <summary className="password-settings-summary">
+                    <span>
+                      <b>Đổi mật khẩu</b>
+                      <p>Thay đổi mật khẩu đăng nhập để bảo vệ tài khoản.</p>
+                    </span>
+                    <Icon name="chevron" size={20} />
+                  </summary>
+                  <form className="change-password-form" onSubmit={changePassword}>
+                    <div className="form-grid two">
+                      <label>
+                        Mật khẩu hiện tại
+                        <PasswordField
+                          value={passwordForm.currentPassword}
+                          onChange={(event) =>
+                            setPasswordForm({
+                              ...passwordForm,
+                              currentPassword: event.target.value,
+                            })
+                          }
+                          autoComplete="current-password"
+                        />
+                      </label>
+                      <label>
+                        Mật khẩu mới
+                        <PasswordField
+                          value={passwordForm.newPassword}
+                          onChange={(event) =>
+                            setPasswordForm({
+                              ...passwordForm,
+                              newPassword: event.target.value,
+                            })
+                          }
+                          autoComplete="new-password"
+                        />
+                      </label>
+                      <label>
+                        Xác nhận mật khẩu mới
+                        <PasswordField
+                          value={passwordForm.newPasswordConfirmation}
+                          onChange={(event) =>
+                            setPasswordForm({
+                              ...passwordForm,
+                              newPasswordConfirmation: event.target.value,
+                            })
+                          }
+                          autoComplete="new-password"
+                        />
+                      </label>
+                    </div>
+                    <small>Mật khẩu mới từ 6 đến 100 ký tự và phải khác mật khẩu hiện tại.</small>
+                    <button className="btn btn-primary" disabled={passwordBusy}>
+                      {passwordBusy ? "Đang cập nhật..." : "Lưu mật khẩu mới"}
+                    </button>
+                  </form>
+                </details>
                 <div className="settings-row face-settings-row">
                   <div>
                     <b>

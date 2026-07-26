@@ -8,6 +8,9 @@ Base URL: `http://localhost:8080/api`
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/google`
+- `POST /auth/password/forgot`
+- `POST /auth/password/verify-code`
+- `POST /auth/password/reset`
 - `GET /categories`
 - `GET /products`
 - `GET /products/featured`
@@ -17,6 +20,7 @@ Base URL: `http://localhost:8080/api`
 ## Customer (Bearer Token)
 
 - `GET /auth/me`
+- `POST /auth/password/change`
 - `PUT /users/me`
 - `GET|POST /users/me/addresses`
 - `PUT|DELETE /users/me/addresses/{id}`

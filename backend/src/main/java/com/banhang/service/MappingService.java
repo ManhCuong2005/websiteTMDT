@@ -71,7 +71,8 @@ public class MappingService {
                         item.getProductSku(), item.getProductImageUrl(), item.getUnitPrice(), item.getQuantity(), item.getLineTotal()))
                 .toList();
         return new OrderDtos.OrderResponse(order.getId(), order.getOrderCode(), order.getUser().getId(),
-                order.getUser().getFullName(), order.getUser().getEmail(), order.getStatus(), order.getPaymentMethod(),
+                order.getUser().getFullName(), order.getUser().getEmail(), order.getUser().getAvatarUrl(),
+                order.getStatus(), order.getPaymentMethod(),
                 payment == null ? null : payment.getStatus(), order.getRecipientName(), order.getRecipientPhone(),
                 order.getShippingAddress(), order.getSubtotal(), order.getDiscountAmount(), order.getShippingFee(),
                 order.getTotal(), order.getCouponCode(), order.getNote(), order.getCancelReason(), order.getCreatedAt(),
@@ -91,6 +92,6 @@ public class MappingService {
 
     public AdminDtos.AdminUserResponse toAdminUser(User user) {
         return new AdminDtos.AdminUserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPhone(),
-                user.getRole(), user.getProvider(), user.isEnabled(), user.getCreatedAt());
+                user.getAvatarUrl(), user.getRole(), user.getProvider(), user.isEnabled(), user.getCreatedAt());
     }
 }

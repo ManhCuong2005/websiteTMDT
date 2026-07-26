@@ -29,14 +29,23 @@ api.interceptors.response.use(
 );
 
 export const errorMessage = (error) => {
+  const isEnglish = document.documentElement.lang === "en";
   const details = error.response?.data?.details;
   if (details && typeof details === "object") return Object.values(details)[0];
   if (typeof error.response?.data === "string" && error.response.data.trim()) {
-    return `Máy chủ trả về lỗi ${error.response.status}. Vui lòng kiểm tra backend đã restart đúng phiên bản mới.`;
+    return isEnglish
+      ? `The server returned error ${error.response.status}. Please verify that the backend is running the latest version.`
+      : `Máy chủ trả về lỗi ${error.response.status}. Vui lòng kiểm tra backend đã restart đúng phiên bản mới.`;
   }
   if (error.response?.data?.message) return error.response.data.message;
-  if (error.response?.status) return `Có lỗi xảy ra từ máy chủ (HTTP ${error.response.status}).`;
-  return "Không kết nối được backend. Vui lòng kiểm tra backend đang chạy.";
+  if (error.response?.status) {
+    return isEnglish
+      ? `The server returned an error (HTTP ${error.response.status}).`
+      : `Có lỗi xảy ra từ máy chủ (HTTP ${error.response.status}).`;
+  }
+  return isEnglish
+    ? "Could not connect to the backend. Please check that it is running."
+    : "Không kết nối được backend. Vui lòng kiểm tra backend đang chạy.";
 };
 
 export default api;

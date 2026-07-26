@@ -5,15 +5,18 @@ import { errorMessage } from '../services/api'
 import GoogleButton from '../components/GoogleButton'
 import { Icon } from '../components/Icons'
 import FaceCaptureDialog from '../components/FaceCaptureDialog'
+import { useLanguage } from '../contexts/LanguageContext'
 
 export default function LoginPage() {
   const { user, login, googleLogin, acceptAuthResponse } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ email: location.state?.email || '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
   const [faceOpen, setFaceOpen] = useState(false)
+  const resetMessage = location.state?.passwordResetMessage
 
   const destination = location.state?.from || '/'
 
@@ -55,7 +58,7 @@ export default function LoginPage() {
   const openFaceLogin = () => {
     const email = form.email.trim()
     if (!email || !email.includes('@')) {
-      alert('Vui lòng nhập email hợp lệ trước khi xác thực gương mặt.')
+      alert(t('Vui lòng nhập email hợp lệ trước khi xác thực gương mặt.'))
       return
     }
     setFaceOpen(true)
@@ -78,6 +81,7 @@ export default function LoginPage() {
         <span className="eyebrow">CHÀO MỪNG TRỞ LẠI</span>
         <h1>Đăng nhập</h1>
         <p>Chưa có tài khoản? <Link to="/dang-ky">Đăng ký miễn phí</Link></p>
+        {resetMessage && <div className="auth-success-message">{resetMessage}</div>}
         <form onSubmit={submit}>
           <label>
             Email
@@ -110,6 +114,11 @@ export default function LoginPage() {
               </button>
             </span>
           </label>
+          <div className="forgot-password-row">
+            <Link to="/quen-mat-khau" state={{ email: form.email.trim() }}>
+              Quên mật khẩu?
+            </Link>
+          </div>
           <button type="submit" className="btn btn-primary full" disabled={busy}>
             {busy ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>

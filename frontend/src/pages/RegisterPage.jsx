@@ -3,9 +3,11 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { errorMessage } from '../services/api'
 import { Icon } from '../components/Icons'
+import { useLanguage } from '../contexts/LanguageContext'
 
 export default function RegisterPage() {
   const { user, register, verifyRegistration } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', confirm: '' })
   const [showPassword, setShowPassword] = useState(false)
@@ -19,7 +21,7 @@ export default function RegisterPage() {
 
   const submit = async (e) => {
     e.preventDefault()
-    if (form.password !== form.confirm) return alert('Mat khau xac nhan khong khop')
+    if (form.password !== form.confirm) return alert(t('Mật khẩu xác nhận không khớp'))
     setBusy(true)
     try {
       const response = await register({
@@ -29,7 +31,7 @@ export default function RegisterPage() {
         password: form.password,
       })
       setPendingEmail(response.email)
-      setNotice(response.message || 'Ma xac thuc da duoc gui den email cua ban')
+      setNotice(response.message || 'Mã xác thực đã được gửi đến email của bạn')
     } catch (err) {
       alert(errorMessage(err))
     } finally {
@@ -60,51 +62,51 @@ export default function RegisterPage() {
     <div className="auth-page">
       <div className="auth-visual register">
         <div className="auth-drop">*</div>
-        <h2>Tao tai khoan<br />trong vai phut.</h2>
-        <p>Theo doi don hang va luu thong tin nhan hang tien loi hon.</p>
+        <h2>Tạo tài khoản<br />trong vài phút.</h2>
+        <p>Theo dõi đơn hàng và lưu thông tin nhận hàng tiện lợi hơn.</p>
       </div>
       <div className="auth-card">
-        <span className="eyebrow">THANH VIEN MOI</span>
-        <h1>Dang ky tai khoan</h1>
-        <p>Da co tai khoan? <Link to="/dang-nhap">Dang nhap</Link></p>
+        <span className="eyebrow">THÀNH VIÊN MỚI</span>
+        <h1>Đăng ký tài khoản</h1>
+        <p>Đã có tài khoản? <Link to="/dang-nhap">Đăng nhập</Link></p>
 
         {!pendingEmail ? (
           <form onSubmit={submit}>
-            <label>Ho va ten
+            <label>Họ và tên
               <input required value={form.fullName} onChange={e => setForm({ ...form, fullName: e.target.value })} />
             </label>
             <div className="form-grid two">
               <label>Email
                 <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
               </label>
-              <label>So dien thoai
+              <label>Số điện thoại
                 <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
               </label>
             </div>
             <div className="form-grid two">
-              <label>Mat khau
+              <label>Mật khẩu
                 <span className="password-field">
                   <input type={showPassword ? 'text' : 'password'} minLength="6" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
                   <button
                     type="button"
                     className="password-toggle"
                     onClick={() => setShowPassword((current) => !current)}
-                    aria-label={showPassword ? 'An mat khau' : 'Hien mat khau'}
-                    title={showPassword ? 'An mat khau' : 'Hien mat khau'}
+                    aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   >
                     <Icon name={showPassword ? 'eyeOff' : 'eye'} size={18} />
                   </button>
                 </span>
               </label>
-              <label>Xac nhan mat khau
+              <label>Xác nhận mật khẩu
                 <span className="password-field">
                   <input type={showConfirm ? 'text' : 'password'} minLength="6" required value={form.confirm} onChange={e => setForm({ ...form, confirm: e.target.value })} />
                   <button
                     type="button"
                     className="password-toggle"
                     onClick={() => setShowConfirm((current) => !current)}
-                    aria-label={showConfirm ? 'An mat khau xac nhan' : 'Hien mat khau xac nhan'}
-                    title={showConfirm ? 'An mat khau xac nhan' : 'Hien mat khau xac nhan'}
+                    aria-label={showConfirm ? 'Ẩn mật khẩu xác nhận' : 'Hiện mật khẩu xác nhận'}
+                    title={showConfirm ? 'Ẩn mật khẩu xác nhận' : 'Hiện mật khẩu xác nhận'}
                   >
                     <Icon name={showConfirm ? 'eyeOff' : 'eye'} size={18} />
                   </button>
@@ -112,13 +114,13 @@ export default function RegisterPage() {
               </label>
             </div>
             <button className="btn btn-primary full" disabled={busy}>
-              {busy ? 'Dang gui ma...' : 'Gui ma xac thuc'}
+              {busy ? 'Đang gửi mã...' : 'Gửi mã xác thực'}
             </button>
           </form>
         ) : (
           <form onSubmit={verify}>
             <p className="legal-note">{notice}. Email: <strong>{pendingEmail}</strong></p>
-            <label>Ma xac thuc
+            <label>Mã xác thực
               <input
                 inputMode="numeric"
                 maxLength="6"
@@ -128,15 +130,15 @@ export default function RegisterPage() {
               />
             </label>
             <button className="btn btn-primary full" disabled={busy || code.length !== 6}>
-              {busy ? 'Dang xac thuc...' : 'Xac thuc va tao tai khoan'}
+              {busy ? 'Đang xác thực...' : 'Xác thực và tạo tài khoản'}
             </button>
             <button type="button" className="btn btn-ghost full" onClick={changeEmail} disabled={busy}>
-              Doi thong tin dang ky
+              Đổi thông tin đăng ký
             </button>
           </form>
         )}
 
-        <small className="legal-note">Mat khau toi thieu 6 ky tu. Khong su dung mat khau quan trong cua ban.</small>
+        <small className="legal-note">Mật khẩu tối thiểu 6 ký tự. Không sử dụng mật khẩu quan trọng của bạn.</small>
       </div>
     </div>
   )

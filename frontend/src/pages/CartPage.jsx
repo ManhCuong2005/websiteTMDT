@@ -5,16 +5,18 @@ import { money } from '../services/format'
 import { errorMessage } from '../services/api'
 import ProductVisual from '../components/ProductVisual'
 import { Icon } from '../components/Icons'
+import { useLanguage } from '../contexts/LanguageContext'
 
 export default function CartPage() {
   const { cart, updateItem, removeItem, busy } = useCart()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const shipping = Number(cart.subtotal) >= 500000 ? 0 : 30000
   const update = async (item, quantity) => {
     try { await updateItem(item.id, quantity) } catch (e) { alert(errorMessage(e)) }
   }
-  const remove = async (id) => { if (confirm('Xóa sản phẩm khỏi giỏ hàng?')) await removeItem(id) }
+  const remove = async (id) => { if (confirm(t('Xóa sản phẩm khỏi giỏ hàng?'))) await removeItem(id) }
   if (!user) return <div className="page-section container"><div className="empty-state"><Icon name="cart" size={48}/><h1>Đăng nhập để xem giỏ hàng</h1><p>Giỏ hàng được lưu theo tài khoản của bạn.</p><Link className="btn btn-primary" to="/dang-nhap">Đăng nhập ngay</Link></div></div>
   if (!cart.items.length) return <div className="page-section container"><div className="empty-state"><Icon name="cart" size={48}/><h1>Giỏ hàng đang trống</h1><p>Khám phá các sản phẩm chăm sóc nguồn nước của chúng tôi.</p><Link className="btn btn-primary" to="/san-pham">Tiếp tục mua sắm</Link></div></div>
   return (

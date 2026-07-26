@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import api, { errorMessage } from '../services/api'
 import { dateTime, money, statusLabel } from '../services/format'
 import { Icon } from '../components/Icons'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const orderSteps = ['PENDING', 'CONFIRMED', 'PACKING', 'SHIPPING', 'DELIVERED']
 const filters = [
@@ -30,6 +31,7 @@ function currentStepIndex(status) {
 }
 
 export default function OrdersPage() {
+  const { t } = useLanguage()
   const [orders, setOrders] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [filter, setFilter] = useState('ALL')
@@ -68,7 +70,7 @@ export default function OrdersPage() {
   }, [selectedId, filteredOrders])
 
   const cancelOrder = async (order) => {
-    if (!confirm(`Bạn chắc chắn muốn hủy đơn ${order.orderCode}?`)) return
+    if (!confirm(`${t('Bạn chắc chắn muốn hủy đơn')} ${order.orderCode}?`)) return
 
     setBusyId(order.id)
     try {

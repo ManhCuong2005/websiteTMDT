@@ -30,7 +30,12 @@ public class StaffController {
     @PatchMapping("/tasks/{id}/complete")
     public ServiceRequestDtos.ServiceRequestResponse completeTask(
             @PathVariable Long id,
-            @RequestBody ServiceRequestDtos.UpdateServiceRequestStatusRequest request) {
+            @RequestBody ServiceRequestDtos.StaffCompleteRequest request) {
         return serviceRequestService.completeMyTask(id, request);
+    }
+
+    @PatchMapping("/tasks/{id}/contact")
+    public ServiceRequestDtos.ServiceRequestResponse contactCustomer(@PathVariable Long id) {
+        return serviceRequestService.staffContact(id);
     }
 }

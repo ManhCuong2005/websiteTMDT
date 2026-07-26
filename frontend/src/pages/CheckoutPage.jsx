@@ -4,11 +4,13 @@ import api, { errorMessage } from '../services/api'
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { money } from '../services/format'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const emptyForm = { recipientName: '', recipientPhone: '', addressLine: '', ward: '', district: '', province: '', couponCode: '', note: '', saveAddress: true }
 
 export default function CheckoutPage() {
   const { cart, setCart } = useCart(); const { user } = useAuth(); const navigate = useNavigate()
+  const { t } = useLanguage()
   const [form, setForm] = useState({ ...emptyForm, recipientName: user?.fullName || '', recipientPhone: user?.phone || '' })
   const [addresses, setAddresses] = useState([]); const [coupon, setCoupon] = useState(null); const [placing, setPlacing] = useState(false)
   useEffect(() => { api.get('/users/me/addresses').then(r => { setAddresses(r.data); const d = r.data.find(a => a.defaultAddress) || r.data[0]; if (d) chooseAddress(d) }).catch(() => {}) }, [])
@@ -25,7 +27,7 @@ export default function CheckoutPage() {
   const total = Number(cart.subtotal) - discount + shipping
   const submit = async e => {
     e.preventDefault(); setPlacing(true)
-    try { const order = (await api.post('/orders', form)).data; setCart({ items: [], totalItems: 0, subtotal: 0 }); alert(`Đặt hàng thành công: ${order.orderCode}`); navigate('/don-hang') }
+    try { const order = (await api.post('/orders', form)).data; setCart({ items: [], totalItems: 0, subtotal: 0 }); alert(`${t('Đặt hàng thành công')}: ${order.orderCode}`); navigate('/don-hang') }
     catch (err) { alert(errorMessage(err)) } finally { setPlacing(false) }
   }
   return (

@@ -8,10 +8,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
+
 public interface ServiceRequestRepository extends JpaRepository<ServiceRequest, Long> {
     long countByStatus(ServiceRequestStatus status);
-    long countByAssignedStaffIdAndStatusNot(Long staffId, ServiceRequestStatus status);
+    long countByAssignedStaffIdAndStatusIn(Long staffId, Collection<ServiceRequestStatus> statuses);
     Page<ServiceRequest> findByAssignedStaffId(Long staffId, Pageable pageable);
+    Page<ServiceRequest> findByUserId(Long userId, Pageable pageable);
 
     @Query("""
             select request from ServiceRequest request

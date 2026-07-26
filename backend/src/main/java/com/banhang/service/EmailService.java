@@ -34,6 +34,14 @@ public class EmailService {
                 "Mã xác thực của bạn là: " + code + "\nMã có hiệu lực trong " + minutes + " phút.");
     }
 
+    public void sendPasswordResetCode(String email, String name, String code, int minutes) {
+        send(email, "Mã xác thực đặt lại mật khẩu",
+                "Xin chào " + safeName(name) + ",\n\n"
+                        + "Mã xác thực đặt lại mật khẩu của bạn là: " + code + "\n"
+                        + "Mã có hiệu lực trong " + minutes + " phút.\n\n"
+                        + "Nếu bạn không yêu cầu đổi mật khẩu, hãy bỏ qua email này.");
+    }
+
     public void sendGoogleLoginSuccess(String email, String name) {
         send(email, "Đăng nhập thành công với Google",
                 "Xin chào " + safeName(name) + ",\nài khoản Google liên kết với email này vừa đăng nhập thành công.");

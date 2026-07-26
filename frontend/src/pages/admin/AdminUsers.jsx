@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import api, { errorMessage } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import { dateTime } from "../../services/format";
+import { useLanguage } from "../../contexts/LanguageContext";
+import UserAvatar from "../../components/UserAvatar";
 
 const roleOptions = [
   { value: "CUSTOMER", label: "Khách hàng" },
@@ -13,6 +15,7 @@ const roleLabel = Object.fromEntries(roleOptions.map((item) => [item.value, item
 
 export default function AdminUsers() {
   const { user: currentUser, setUser } = useAuth();
+  const { t } = useLanguage();
   const [users, setUsers] = useState([]);
   const [busyId, setBusyId] = useState(null);
 
@@ -33,7 +36,7 @@ export default function AdminUsers() {
 
   const toggle = async (targetUser) => {
     if (targetUser.id === currentUser?.id) {
-      alert("Bạn không thể tự khóa tài khoản đang đăng nhập.");
+      alert(t("Bạn không thể tự khóa tài khoản đang đăng nhập."));
       return;
     }
     setBusyId(targetUser.id);
@@ -50,7 +53,7 @@ export default function AdminUsers() {
   const updateRole = async (targetUser, role) => {
     if (role === targetUser.role) return;
     if (targetUser.id === currentUser?.id && role !== "ADMIN") {
-      alert("Bạn không thể tự hạ vai trò quản trị của chính mình.");
+      alert(t("Bạn không thể tự hạ vai trò quản trị của chính mình."));
       return;
     }
     setBusyId(targetUser.id);
@@ -92,8 +95,13 @@ export default function AdminUsers() {
                 return (
                   <tr key={targetUser.id}>
                     <td>
-                      <b>{targetUser.fullName}</b>
-                      <small>{targetUser.email}{targetUser.phone ? ` · ${targetUser.phone}` : ""}</small>
+                      <div className="admin-user-identity">
+                        <UserAvatar avatarUrl={targetUser.avatarUrl} name={targetUser.fullName} size={36} />
+                        <span>
+                          <b>{targetUser.fullName}</b>
+                          <small>{targetUser.email}{targetUser.phone ? ` · ${targetUser.phone}` : ""}</small>
+                        </span>
+                      </div>
                     </td>
                     <td>
                       <label className="role-select-label">
