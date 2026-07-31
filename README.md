@@ -6,7 +6,7 @@ Dự án gồm phần **website + database** cho cửa hàng bán:
 - Lõi lọc nước
 - Máy lọc nước
 
-AI, hình ảnh thật và blockchain/Ganache/MetaMask được để dành cho giai đoạn sau. Cấu trúc hiện tại đã tách sẵn để bổ sung mà không cần viết lại phần web chính.
+Dự án có thanh toán ETH trên Ganache local qua MetaMask; dữ liệu đơn hàng vẫn được quản lý trong PostgreSQL.
 
 ## Công nghệ
 
@@ -28,6 +28,13 @@ AI, hình ảnh thật và blockchain/Ganache/MetaMask được để dành cho 
 - Axios
 - CSS thuần, responsive, giao diện tiếng Việt
 
+### Blockchain local
+
+- Ganache Desktop, RPC `http://127.0.0.1:7545`, chain ID `1337`
+- Solidity smart contract nhận thanh toán đơn hàng
+- MetaMask ký và gửi giao dịch từ trình duyệt
+- Backend xác minh transaction qua Ethereum JSON-RPC
+
 ## Chức năng đã có
 
 ### Khách hàng
@@ -39,7 +46,8 @@ AI, hình ảnh thật và blockchain/Ganache/MetaMask được để dành cho 
 - Giỏ hàng theo tài khoản
 - Tăng, giảm, xóa sản phẩm trong giỏ
 - Áp dụng mã giảm giá
-- Đặt hàng thanh toán COD
+- Đặt hàng thanh toán COD hoặc ETH qua MetaMask
+- Thanh toán lại/xác nhận lại giao dịch ETH đang chờ trong lịch sử đơn hàng
 - Lưu và quản lý địa chỉ
 - Xem lịch sử đơn hàng
 - Hủy đơn đang chờ xác nhận
@@ -62,6 +70,7 @@ AI, hình ảnh thật và blockchain/Ganache/MetaMask được để dành cho 
 banhang-project/
 ├── backend/             Spring Boot REST API
 ├── frontend/            React + Vite
+├── blockchain/          Solidity contract và script compile/deploy Ganache
 ├── database/            SQL tạo database, bảng và dữ liệu mẫu
 ├── docs/                Tài liệu kỹ thuật
 ├── check-environment.bat Kiểm tra môi trường Windows 11
@@ -321,13 +330,44 @@ GIAM50K
 LOILOC15
 ```
 
+# Thanh toán ETH bằng Ganache và MetaMask
+
+Contract hiện tại trên Ganache workspace:
+
+```text
+RPC:             http://127.0.0.1:7545
+Chain ID:        1337
+Merchant wallet: 0x64def5FBD89a8f59eBE6917Bf9460e85c258c725
+Contract:        0x4Ea52fE2a889f391eC5Fc433a7bD4f8ad3A675ba
+Tỷ giá demo:     1 ETH = 50.000.000 VND
+```
+
+Nếu reset Ganache workspace, deploy lại contract:
+
+```bat
+cd blockchain
+npm install
+npm run compile
+npm run deploy
+```
+
+Chép `BLOCKCHAIN_CONTRACT_ADDRESS` và `BLOCKCHAIN_PAYMENT_SELECTOR` do script in ra
+vào `config.local.bat`, sau đó restart backend.
+
+Trong MetaMask:
+
+1. Thêm mạng với RPC `http://127.0.0.1:7545`, chain ID `1337`, ký hiệu `ETH`.
+2. Import một tài khoản Ganache bằng private key của chính tài khoản local đó.
+3. Chọn thanh toán ETH ở checkout và xác nhận giao dịch.
+
+Chỉ sử dụng private key do Ganache tạo cho môi trường local. Không nhập seed phrase hoặc
+private key của ví đang giữ tài sản thật.
+
 # Giai đoạn bổ sung sau
 
 - Thay URL hoặc upload hình ảnh sản phẩm lên Cloudinary/S3
 - Dịch vụ AI Python/FastAPI cho gợi ý sản phẩm
 - Bảng dữ liệu hành vi người dùng phục vụ học máy
-- Ganache + MetaMask + Solidity + ethers.js
-- Lưu transaction hash blockchain trong PostgreSQL
 
 # Đăng nhập bằng gương mặt
 

@@ -76,7 +76,22 @@ public class MappingService {
                 payment == null ? null : payment.getStatus(), order.getRecipientName(), order.getRecipientPhone(),
                 order.getShippingAddress(), order.getSubtotal(), order.getDiscountAmount(), order.getShippingFee(),
                 order.getTotal(), order.getCouponCode(), order.getNote(), order.getCancelReason(), order.getCreatedAt(),
-                order.getConfirmedAt(), order.getDeliveredAt(), items);
+                order.getConfirmedAt(), order.getDeliveredAt(), items,
+                payment == null ? null : toCryptoPayment(payment));
+    }
+
+    private OrderDtos.CryptoPaymentResponse toCryptoPayment(Payment payment) {
+        if (payment.getMethod() != com.banhang.domain.enums.PaymentMethod.ETH) {
+            return null;
+        }
+        BigDecimal expectedEth = payment.getExpectedAmountWei() == null
+                ? null
+                : new BigDecimal(payment.getExpectedAmountWei()).movePointLeft(18);
+        return new OrderDtos.CryptoPaymentResponse(
+                true, null, payment.getChainId() == null ? 0 : payment.getChainId(),
+                null, null, null, null, payment.getBlockchainOrderId(),
+                payment.getExpectedAmountWei(), expectedEth, payment.getTransactionReference(),
+                payment.getPayerWalletAddress(), payment.getBlockNumber());
     }
 
     public ReviewDtos.ReviewResponse toReview(Review review) {

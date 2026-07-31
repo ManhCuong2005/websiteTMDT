@@ -1,0 +1,15 @@
+{
+  "name": "banhang-blockchain",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "compile": "node scripts/compile.js",
+    "deploy": "node scripts/deploy.js",
+    "smoke-test": "node scripts/smoke-test.js"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "solc": "^0.8.30"
+  }
+}

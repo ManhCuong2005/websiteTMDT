@@ -15,14 +15,14 @@ public final class CartDtos {
             @NotNull(message = "Sản phẩm không được để trống")
             Long productId,
             @Min(value = 1, message = "Số lượng tối thiểu là 1")
-            @Max(value = 99, message = "Số lượng tối đa là 99")
+            @Max(value = 1000, message = "Số lượng tối đa là 1000")
             int quantity
     ) {
     }
 
     public record UpdateCartItemRequest(
             @Min(value = 1, message = "Số lượng tối thiểu là 1")
-            @Max(value = 99, message = "Số lượng tối đa là 99")
+            @Max(value = 1000, message = "Số lượng tối đa là 1000")
             int quantity
     ) {
     }

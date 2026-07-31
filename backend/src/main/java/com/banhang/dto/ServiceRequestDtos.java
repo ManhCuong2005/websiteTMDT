@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 public final class ServiceRequestDtos {
     private ServiceRequestDtos() {
@@ -120,10 +122,24 @@ public final class ServiceRequestDtos {
             Long serviceRequestId,
             String customerName,
             String customerAvatarUrl,
+            String customerEmailMasked,
             String serviceType,
             int rating,
             String content,
             LocalDateTime createdAt
+    ) {
+    }
+
+    public record ServiceReviewPageResponse(
+            List<ServiceReviewResponse> content,
+            int page,
+            int size,
+            long totalElements,
+            int totalPages,
+            boolean first,
+            boolean last,
+            double averageRating,
+            Map<Integer, Long> ratingCounts
     ) {
     }
 }

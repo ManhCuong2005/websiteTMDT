@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -140,6 +142,50 @@ public class ServiceRequestService {
                 .stream()
                 .map(this::toReviewResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public ServiceRequestDtos.ServiceReviewPageResponse publicReviews(
+            Integer rating,
+            String sort,
+            int page,
+            int size) {
+        if (rating != null && (rating < 1 || rating > 5)) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "So sao phai tu 1 den 5");
+        }
+
+        Sort reviewSort = switch (sort == null ? "newest" : sort.trim().toLowerCase()) {
+            case "oldest" -> Sort.by(Sort.Direction.ASC, "createdAt");
+            case "rating_desc" -> Sort.by(Sort.Direction.DESC, "rating")
+                    .and(Sort.by(Sort.Direction.DESC, "createdAt"));
+            case "rating_asc" -> Sort.by(Sort.Direction.ASC, "rating")
+                    .and(Sort.by(Sort.Direction.DESC, "createdAt"));
+            default -> Sort.by(Sort.Direction.DESC, "createdAt");
+        };
+
+        PageRequest pageable = PageRequest.of(
+                Math.max(0, page),
+                Math.min(Math.max(size, 1), 50),
+                reviewSort);
+        Page<ServiceReview> result = rating == null
+                ? serviceReviewRepository.findAll(pageable)
+                : serviceReviewRepository.findByRating(rating, pageable);
+
+        Map<Integer, Long> ratingCounts = new LinkedHashMap<>();
+        for (int stars = 5; stars >= 1; stars--) {
+            ratingCounts.put(stars, serviceReviewRepository.countByRating(stars));
+        }
+
+        return new ServiceRequestDtos.ServiceReviewPageResponse(
+                result.getContent().stream().map(this::toReviewResponse).toList(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages(),
+                result.isFirst(),
+                result.isLast(),
+                serviceReviewRepository.averageRating(),
+                ratingCounts);
     }
 
     @Transactional(readOnly = true)
@@ -326,10 +372,24 @@ public class ServiceRequestService {
                 review.getServiceRequest().getId(),
                 review.getUser().getFullName(),
                 review.getUser().getAvatarUrl(),
+                maskEmail(review.getUser().getEmail()),
                 review.getServiceRequest().getServiceType(),
                 review.getRating(),
                 review.getContent(),
                 review.getCreatedAt());
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || email.isBlank() || !email.contains("@")) {
+            return "";
+        }
+        int separator = email.indexOf('@');
+        String local = email.substring(0, separator);
+        String domain = email.substring(separator);
+        String visible = local.length() <= 2
+                ? local.substring(0, 1)
+                : local.substring(0, Math.min(2, local.length()));
+        return visible + "***" + domain;
     }
 
     private ServiceRequest requireRequest(Long id) {

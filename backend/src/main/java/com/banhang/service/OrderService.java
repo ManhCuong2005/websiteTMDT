@@ -34,6 +34,7 @@ public class OrderService {
     private final AddressRepository addressRepository;
     private final MappingService mappingService;
     private final EmailService emailService;
+    private final BlockchainPaymentService blockchainPaymentService;
 
     public OrderService(CurrentUserService currentUserService,
                         CartRepository cartRepository,
@@ -43,7 +44,8 @@ public class OrderService {
                         CouponRepository couponRepository,
                         AddressRepository addressRepository,
                         MappingService mappingService,
-                        EmailService emailService) {
+                        EmailService emailService,
+                        BlockchainPaymentService blockchainPaymentService) {
         this.currentUserService = currentUserService;
         this.cartRepository = cartRepository;
         this.orderRepository = orderRepository;
@@ -53,6 +55,7 @@ public class OrderService {
         this.addressRepository = addressRepository;
         this.mappingService = mappingService;
         this.emailService = emailService;
+        this.blockchainPaymentService = blockchainPaymentService;
     }
 
     @Transactional(readOnly = true)
@@ -96,11 +99,17 @@ public class OrderService {
         BigDecimal shippingFee = subtotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0 ? BigDecimal.ZERO : SHIPPING_FEE;
         BigDecimal total = subtotal.subtract(discount).add(shippingFee).max(BigDecimal.ZERO);
 
+        PaymentMethod paymentMethod = request.paymentMethod() == null ? PaymentMethod.COD : request.paymentMethod();
+        if (paymentMethod == PaymentMethod.ETH && !blockchainPaymentService.isEnabled()) {
+            throw new AppException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Thanh toán ETH chưa được cấu hình contract");
+        }
+
         Order order = new Order();
         order.setOrderCode(generateCode());
         order.setUser(user);
         order.setStatus(OrderStatus.PENDING);
-        order.setPaymentMethod(PaymentMethod.COD);
+        order.setPaymentMethod(paymentMethod);
         order.setRecipientName(request.recipientName().trim());
         order.setRecipientPhone(request.recipientPhone().trim());
         order.setShippingAddress(formatAddress(request));
@@ -131,9 +140,14 @@ public class OrderService {
 
         Payment payment = new Payment();
         payment.setOrder(order);
-        payment.setMethod(PaymentMethod.COD);
+        payment.setMethod(paymentMethod);
         payment.setStatus(PaymentStatus.PENDING);
         payment.setAmount(total);
+        if (paymentMethod == PaymentMethod.ETH) {
+            payment.setBlockchainOrderId(generateBlockchainOrderId());
+            payment.setExpectedAmountWei(blockchainPaymentService.calculateExpectedWei(total));
+            payment.setChainId(blockchainPaymentService.config().chainId());
+        }
         paymentRepository.save(payment);
 
         if (coupon != null) {
@@ -165,6 +179,52 @@ public class OrderService {
         return mappingService.toOrder(order);
     }
 
+    @Transactional(readOnly = true)
+    public OrderDtos.CryptoPaymentResponse cryptoConfig() {
+        return blockchainPaymentService.config();
+    }
+
+    @Transactional
+    public OrderDtos.OrderResponse confirmCryptoPayment(
+            Long id,
+            OrderDtos.ConfirmCryptoPaymentRequest request) {
+        User user = currentUserService.requireUser();
+        Order order = orderRepository.findById(id)
+                .filter(value -> value.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng"));
+        Payment payment = paymentRepository.findByOrderId(order.getId())
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy thanh toán"));
+
+        if (payment.getMethod() != PaymentMethod.ETH) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Đơn hàng không sử dụng thanh toán ETH");
+        }
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Đơn hàng đã bị hủy");
+        }
+
+        String transactionHash = request.transactionHash().toLowerCase(Locale.ROOT);
+        if (payment.getStatus() == PaymentStatus.PAID
+                && transactionHash.equalsIgnoreCase(payment.getTransactionReference())) {
+            return mappingService.toOrder(order);
+        }
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new AppException(HttpStatus.CONFLICT, "Thanh toán không còn ở trạng thái chờ");
+        }
+        if (paymentRepository.existsByTransactionReferenceIgnoreCase(transactionHash)) {
+            throw new AppException(HttpStatus.CONFLICT, "Giao dịch này đã được sử dụng");
+        }
+
+        BlockchainPaymentService.VerifiedTransaction verified = blockchainPaymentService.verify(
+                transactionHash, payment.getBlockchainOrderId(), payment.getExpectedAmountWei());
+        payment.setTransactionReference(transactionHash);
+        payment.setPayerWalletAddress(verified.payerWalletAddress());
+        payment.setBlockNumber(verified.blockNumber());
+        payment.setStatus(PaymentStatus.PAID);
+        payment.setPaidAt(LocalDateTime.now());
+        paymentRepository.save(payment);
+        return mappingService.toOrder(order);
+    }
+
     @Transactional
     public OrderDtos.OrderResponse cancel(Long id, OrderDtos.CancelOrderRequest request) {
         User user = currentUserService.requireUser();
@@ -173,6 +233,12 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng"));
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Chỉ có thể hủy đơn đang chờ xác nhận");
+        }
+        Payment payment = paymentRepository.findByOrderId(order.getId()).orElse(null);
+        if (payment != null && payment.getMethod() == PaymentMethod.ETH
+                && payment.getStatus() == PaymentStatus.PAID) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    "Đơn đã thanh toán ETH, vui lòng liên hệ cửa hàng để được hoàn tiền trước khi hủy");
         }
         order.setStatus(OrderStatus.CANCELLED);
         order.setCancelReason(request.reason() == null || request.reason().isBlank()
@@ -242,6 +308,11 @@ public class OrderService {
     private String generateCode() {
         return "BH" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmm"))
                 + UUID.randomUUID().toString().substring(0, 5).toUpperCase(Locale.ROOT);
+    }
+
+    private String generateBlockchainOrderId() {
+        return "0x" + UUID.randomUUID().toString().replace("-", "")
+                + UUID.randomUUID().toString().replace("-", "");
     }
 
 

@@ -15,13 +15,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -107,6 +111,32 @@ class ServiceRequestServiceTest {
 
         assertEquals(5, review.rating());
         assertEquals("Phuc vu rat tot", review.content());
+    }
+
+    @Test
+    void publicReviewsSupportRatingFilterAndMaskedEmail() {
+        ServiceRequest request = request(ServiceRequestStatus.COMPLETED);
+        ServiceReview entity = new ServiceReview();
+        entity.setId(5L);
+        entity.setServiceRequest(request);
+        entity.setUser(customer);
+        entity.setRating(5);
+        entity.setContent("Phuc vu dung gio");
+        when(serviceReviewRepository.findByRating(
+                org.mockito.ArgumentMatchers.eq(5),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(entity)));
+        when(serviceReviewRepository.countByRating(anyInt())).thenReturn(0L);
+        when(serviceReviewRepository.countByRating(5)).thenReturn(1L);
+        when(serviceReviewRepository.averageRating()).thenReturn(5.0);
+
+        ServiceRequestDtos.ServiceReviewPageResponse response =
+                service.publicReviews(5, "rating_desc", 0, 9);
+
+        assertEquals(1, response.totalElements());
+        assertEquals(5.0, response.averageRating());
+        assertEquals(1L, response.ratingCounts().get(5));
+        assertEquals("ng***@example.com", response.content().getFirst().customerEmailMasked());
     }
 
     private ServiceRequest request(ServiceRequestStatus status) {

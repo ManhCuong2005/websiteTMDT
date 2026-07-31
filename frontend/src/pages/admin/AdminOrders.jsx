@@ -249,7 +249,7 @@ export default function AdminOrders() {
                         </span>
                         <span>Địa chỉ: {order.shippingAddress}</span>
                         <span>
-                          Thanh toán: COD / {order.paymentStatus || "PENDING"}
+                          Thanh toán: {order.paymentMethod} / {order.paymentStatus || "PENDING"}
                         </span>
                       </div>
                     </div>

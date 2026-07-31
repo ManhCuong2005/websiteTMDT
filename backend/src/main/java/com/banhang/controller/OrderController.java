@@ -32,6 +32,18 @@ public class OrderController {
         return orderService.checkout(request);
     }
 
+    @GetMapping("/crypto/config")
+    public OrderDtos.CryptoPaymentResponse cryptoConfig() {
+        return orderService.cryptoConfig();
+    }
+
+    @PostMapping("/{id}/crypto-payment/confirm")
+    public OrderDtos.OrderResponse confirmCryptoPayment(
+            @PathVariable Long id,
+            @Valid @RequestBody OrderDtos.ConfirmCryptoPaymentRequest request) {
+        return orderService.confirmCryptoPayment(id, request);
+    }
+
     @GetMapping("/my")
     public List<OrderDtos.OrderResponse> myOrders() {
         return orderService.myOrders();

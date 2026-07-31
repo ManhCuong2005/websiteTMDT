@@ -41,6 +41,21 @@ public class Payment extends BaseEntity {
     @Column(name = "transaction_reference", length = 150)
     private String transactionReference;
 
+    @Column(name = "blockchain_order_id", length = 66)
+    private String blockchainOrderId;
+
+    @Column(name = "expected_amount_wei", length = 78)
+    private String expectedAmountWei;
+
+    @Column(name = "payer_wallet_address", length = 42)
+    private String payerWalletAddress;
+
+    @Column(name = "chain_id")
+    private Long chainId;
+
+    @Column(name = "block_number")
+    private Long blockNumber;
+
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 }

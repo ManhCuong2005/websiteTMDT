@@ -252,6 +252,7 @@ export default function Layout() {
             <span>Hotline: 0977148627</span>
             <span>Email: manhcuongnguyen2205@gmail.com</span>
             <span>Thứ 2 - Chủ nhật: 8:00 - 21:00</span>
+            <Link to="/danh-gia-dich-vu">Đánh giá dịch vụ</Link>
           </div>
           <div>
             <h4>Cam kết</h4>

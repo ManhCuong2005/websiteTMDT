@@ -7,6 +7,7 @@ import com.banhang.domain.Payment;
 import com.banhang.domain.Product;
 import com.banhang.domain.User;
 import com.banhang.domain.enums.OrderStatus;
+import com.banhang.domain.enums.PaymentMethod;
 import com.banhang.domain.enums.PaymentStatus;
 import com.banhang.domain.enums.ServiceRequestStatus;
 import com.banhang.domain.enums.UserRole;
@@ -191,6 +192,20 @@ public class AdminService {
         if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.DELIVERED) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Đơn hàng đã kết thúc, không thể cập nhật");
         }
+        Payment currentPayment = paymentRepository.findByOrderId(order.getId()).orElse(null);
+        if (order.getPaymentMethod() == PaymentMethod.ETH
+                && request.status() != OrderStatus.CANCELLED
+                && (currentPayment == null || currentPayment.getStatus() != PaymentStatus.PAID)) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    "Đơn ETH chưa thanh toán, chưa thể chuyển sang xử lý");
+        }
+        if (order.getPaymentMethod() == PaymentMethod.ETH
+                && request.status() == OrderStatus.CANCELLED
+                && currentPayment != null
+                && currentPayment.getStatus() == PaymentStatus.PAID) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    "Đơn đã thanh toán ETH, cần hoàn tiền trước khi hủy");
+        }
         order.setStatus(request.status());
         if (request.status() == OrderStatus.CONFIRMED) {
             order.setConfirmedAt(LocalDateTime.now());
@@ -215,11 +230,13 @@ public class AdminService {
         }
         if (request.status() == OrderStatus.DELIVERED) {
             order.setDeliveredAt(LocalDateTime.now());
-            Payment payment = paymentRepository.findByOrderId(order.getId()).orElse(null);
+            Payment payment = currentPayment;
             if (payment != null) {
-                payment.setStatus(PaymentStatus.PAID);
-                payment.setPaidAt(LocalDateTime.now());
-                paymentRepository.save(payment);
+                if (payment.getMethod() == PaymentMethod.COD) {
+                    payment.setStatus(PaymentStatus.PAID);
+                    payment.setPaidAt(LocalDateTime.now());
+                    paymentRepository.save(payment);
+                }
             }
         }
         Order saved = orderRepository.save(order);

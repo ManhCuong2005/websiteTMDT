@@ -4,6 +4,7 @@ import com.banhang.domain.enums.OrderStatus;
 import com.banhang.domain.enums.PaymentMethod;
 import com.banhang.domain.enums.PaymentStatus;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
@@ -35,7 +36,8 @@ public final class OrderDtos {
             String couponCode,
             @Size(max = 1000)
             String note,
-            Boolean saveAddress
+            Boolean saveAddress,
+            PaymentMethod paymentMethod
     ) {
     }
 
@@ -89,7 +91,32 @@ public final class OrderDtos {
             LocalDateTime createdAt,
             LocalDateTime confirmedAt,
             LocalDateTime deliveredAt,
-            List<OrderItemResponse> items
+            List<OrderItemResponse> items,
+            CryptoPaymentResponse cryptoPayment
+    ) {
+    }
+
+    public record CryptoPaymentResponse(
+            boolean enabled,
+            String rpcUrl,
+            long chainId,
+            String contractAddress,
+            String merchantAddress,
+            BigDecimal conversionRateVnd,
+            String paymentSelector,
+            String blockchainOrderId,
+            String expectedAmountWei,
+            BigDecimal expectedAmountEth,
+            String transactionHash,
+            String payerWalletAddress,
+            Long blockNumber
+    ) {
+    }
+
+    public record ConfirmCryptoPaymentRequest(
+            @NotBlank(message = "Mã giao dịch không được để trống")
+            @Pattern(regexp = "^0x[0-9a-fA-F]{64}$", message = "Mã giao dịch blockchain không hợp lệ")
+            String transactionHash
     ) {
     }
 

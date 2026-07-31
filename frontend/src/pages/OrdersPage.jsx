@@ -4,6 +4,14 @@ import api, { errorMessage } from '../services/api'
 import { dateTime, money, statusLabel } from '../services/format'
 import { Icon } from '../components/Icons'
 import { useLanguage } from '../contexts/LanguageContext'
+import {
+  forgetPendingTransaction,
+  pendingTransactionFor,
+  prepareGanacheWallet,
+  rememberPendingTransaction,
+  sendOrderPayment,
+  shortHash,
+} from '../services/blockchain'
 
 const orderSteps = ['PENDING', 'CONFIRMED', 'PACKING', 'SHIPPING', 'DELIVERED']
 const filters = [
@@ -37,6 +45,7 @@ export default function OrdersPage() {
   const [filter, setFilter] = useState('ALL')
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState(null)
+  const [cryptoConfig, setCryptoConfig] = useState(null)
 
   const loadOrders = async (silent = false) => {
     if (!silent) setLoading(true)
@@ -53,6 +62,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     loadOrders()
+    api.get('/orders/crypto/config').then((response) => setCryptoConfig(response.data)).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -80,6 +90,28 @@ export default function OrdersPage() {
       setOrders((current) => current.map((item) => item.id === next.id ? next : item))
     } catch (err) {
       alert(errorMessage(err))
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const payCryptoOrder = async (order) => {
+    setBusyId(order.id)
+    try {
+      let transactionHash = pendingTransactionFor(order.id)
+      if (!transactionHash) {
+        const payer = await prepareGanacheWallet(cryptoConfig)
+        transactionHash = await sendOrderPayment(order, cryptoConfig, payer)
+        rememberPendingTransaction(order.id, transactionHash)
+      }
+      const updated = (await api.post(`/orders/${order.id}/crypto-payment/confirm`, {
+        transactionHash,
+      })).data
+      forgetPendingTransaction(order.id)
+      setOrders((current) => current.map((item) => item.id === updated.id ? updated : item))
+      alert(`Thanh toán ETH thành công: ${shortHash(transactionHash)}`)
+    } catch (err) {
+      alert(err?.response ? errorMessage(err) : err.message)
     } finally {
       setBusyId(null)
     }
@@ -178,8 +210,21 @@ export default function OrdersPage() {
                   <Icon name="shield" />
                   <div>
                     <b>Thanh toán</b>
-                    <span>COD · {selectedOrder.paymentStatus}</span>
-                    <small>Thanh toán khi nhận và kiểm tra hàng.</small>
+                    <span>{selectedOrder.paymentMethod} · {selectedOrder.paymentStatus}</span>
+                    {selectedOrder.paymentMethod === 'ETH' ? (
+                      <>
+                        <small>
+                          {selectedOrder.cryptoPayment?.expectedAmountEth} ETH · Chain {selectedOrder.cryptoPayment?.chainId}
+                        </small>
+                        {selectedOrder.cryptoPayment?.transactionHash && (
+                          <small title={selectedOrder.cryptoPayment.transactionHash}>
+                            Tx: {shortHash(selectedOrder.cryptoPayment.transactionHash)}
+                          </small>
+                        )}
+                      </>
+                    ) : (
+                      <small>Thanh toán khi nhận và kiểm tra hàng.</small>
+                    )}
                   </div>
                 </article>
               </div>
@@ -209,6 +254,17 @@ export default function OrdersPage() {
 
               <div className="order-detail-actions">
                 <Link className="btn btn-outline" to="/san-pham">Tiếp tục mua hàng</Link>
+                {selectedOrder.paymentMethod === 'ETH'
+                  && selectedOrder.paymentStatus === 'PENDING'
+                  && selectedOrder.status === 'PENDING' && (
+                    <button
+                      className="btn btn-primary"
+                      disabled={busyId === selectedOrder.id || !cryptoConfig?.enabled}
+                      onClick={() => payCryptoOrder(selectedOrder)}
+                    >
+                      {busyId === selectedOrder.id ? 'Đang xác nhận...' : 'Thanh toán bằng MetaMask'}
+                    </button>
+                  )}
                 {selectedOrder.status === 'PENDING' && (
                   <button
                     className="btn btn-danger-small"

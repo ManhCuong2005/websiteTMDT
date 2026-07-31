@@ -69,4 +69,13 @@ public class ServiceRequestController {
             @RequestParam(defaultValue = "3") int size) {
         return serviceRequestService.featuredReviews(size);
     }
+
+    @GetMapping("/reviews")
+    public ServiceRequestDtos.ServiceReviewPageResponse reviews(
+            @RequestParam(required = false) Integer rating,
+            @RequestParam(defaultValue = "newest") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size) {
+        return serviceRequestService.publicReviews(rating, sort, page, size);
+    }
 }

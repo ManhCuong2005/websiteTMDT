@@ -9,6 +9,7 @@ import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
 import ServiceBookingPage from './pages/ServiceBookingPage'
 import ServiceHistoryPage from './pages/ServiceHistoryPage'
+import ServiceReviewsPage from './pages/ServiceReviewsPage'
 import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import RegisterPage from './pages/RegisterPage'
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="gio-hang" element={<CartPage/>}/>
         <Route path="dat-lich" element={<ProtectedRoute><ServiceBookingPage/></ProtectedRoute>}/>
         <Route path="lich-su-dat-lich" element={<ProtectedRoute><ServiceHistoryPage/></ProtectedRoute>}/>
+        <Route path="danh-gia-dich-vu" element={<ServiceReviewsPage/>}/>
         <Route path="thanh-toan" element={<ProtectedRoute><CheckoutPage/></ProtectedRoute>}/>
         <Route path="dang-nhap" element={<LoginPage/>}/>
         <Route path="quen-mat-khau" element={<ForgotPasswordPage/>}/>

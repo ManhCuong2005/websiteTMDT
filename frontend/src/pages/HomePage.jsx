@@ -211,6 +211,13 @@ export default function HomePage() {
                 <Link to="/dat-lich">Đặt lịch trải nghiệm dịch vụ →</Link>
               </article>
             )}
+            <Link className="all-service-reviews-link" to="/danh-gia-dich-vu">
+              <span>
+                <Icon name="message" size={17} />
+                <b>Xem toàn bộ đánh giá dịch vụ</b>
+              </span>
+              <Icon name="chevron" size={17} />
+            </Link>
           </div>
         </div>
       </section>

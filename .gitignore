@@ -2,6 +2,9 @@ config.local.bat
 backend/target/
 frontend/node_modules/
 frontend/dist/
+blockchain/node_modules/
+blockchain/artifacts/
+blockchain/deployments/
 .env
 .env.*
 !.env.example

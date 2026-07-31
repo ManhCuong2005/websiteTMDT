@@ -70,6 +70,13 @@ app:
     service-url: ${FACE_SERVICE_URL:http://127.0.0.1:8001}
     encryption-secret: ${FACE_DATA_SECRET:${app.jwt.secret}}
     match-threshold: ${FACE_MATCH_THRESHOLD:0.45}
+  blockchain:
+    rpc-url: ${GANACHE_RPC_URL:http://127.0.0.1:7545}
+    chain-id: ${GANACHE_CHAIN_ID:1337}
+    merchant-address: ${MERCHANT_WALLET_ADDRESS:0x64def5FBD89a8f59eBE6917Bf9460e85c258c725}
+    contract-address: ${BLOCKCHAIN_CONTRACT_ADDRESS:0x4Ea52fE2a889f391eC5Fc433a7bD4f8ad3A675ba}
+    payment-selector: ${BLOCKCHAIN_PAYMENT_SELECTOR:0x58504a36}
+    vnd-per-eth: ${VND_PER_ETH:50000000}
 
 logging:
   level:

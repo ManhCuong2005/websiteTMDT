@@ -99,6 +99,10 @@ public class CartService {
         if (quantity < 1) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Số lượng không hợp lệ");
         }
+        if (quantity > 1000) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    "Nếu bạn có nhu cầu mua số lượng lớn, hãy liên hệ với chúng tôi qua Zalo nhé.");
+        }
         if (product.getStockQuantity() < quantity) {
             throw new AppException(HttpStatus.BAD_REQUEST,
                     "Sản phẩm " + product.getName() + " chỉ còn " + product.getStockQuantity() + " trong kho");
